@@ -12,6 +12,12 @@ struct ContentView: View {
     @EnvironmentObject
     var sheetManager: DefaultSheetManager
     
+    @State
+    var enableBlur: Bool = false
+    
+    @State
+    var backgroundColor: Color = .white
+    
     var body: some View {
         CoverSheetView(sheetManager) {
             VStack {
@@ -28,7 +34,7 @@ struct ContentView: View {
                     Spacer()
                 }.padding(.top, 50)
                 Spacer()
-            }
+            }.background(Color.green)
         } sheet: { height in
             ScrollView {
                 VStack {
@@ -50,6 +56,14 @@ struct ContentView: View {
             }
             .disabled(true)
             .background(Color.blue)
+        }
+        .enableBlurEffect(enableBlur)
+        .sheetBackgroundColor(backgroundColor)
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                enableBlur.toggle()
+                backgroundColor = .clear
+            }
         }
     }
 }

@@ -16,10 +16,19 @@ public class CoverSheetController: UIViewController, UIGestureRecognizerDelegate
     
     private var isTransitioning: Bool = false
     
+    private var blurEffectEnabled: Bool = false
+    
+    private var sheetColor: UIColor = .clear
+    
     private var cancellables: Set<AnyCancellable> = []
     
-    init(manager: some Manager, states: [SheetState] = [.minimized, .normal, .full]) {
+    init(manager: some Manager,
+         states: [SheetState] = [.minimized, .normal, .full],
+         shouldUseEffect: Bool = false,
+         sheetColor: UIColor = .white) {
         self.manager = manager
+        self.blurEffectEnabled = shouldUseEffect
+        self.sheetColor = sheetColor
         self.manager.states = states
         super.init(nibName: nil, bundle: nil)
     }
@@ -54,7 +63,7 @@ public class CoverSheetController: UIViewController, UIGestureRecognizerDelegate
     
     private lazy var handle: UIView = {
         let view = UIView()
-        view.backgroundColor = .red
+        view.backgroundColor = .lightGray
         view.layer.cornerRadius = 5
         view.clipsToBounds = true
         
@@ -62,7 +71,7 @@ public class CoverSheetController: UIViewController, UIGestureRecognizerDelegate
     }()
     
     private lazy var blurEffect: UIVisualEffectView = {
-        let blurEffect = UIBlurEffect(style: .dark)
+        let blurEffect = UIBlurEffect(style: .regular)
         let blurView = UIVisualEffectView(effect: blurEffect)
         
         return blurView
@@ -71,18 +80,7 @@ public class CoverSheetController: UIViewController, UIGestureRecognizerDelegate
     private lazy var sheetView: UIView = {
         let view = UIView(frame: .zero)
         
-        view.insertSubview(blurEffect, at: 0)
-        
-        blurEffect.translatesAutoresizingMaskIntoConstraints = false
-        
-        let constraints = [
-            blurEffect.topAnchor.constraint(equalTo: view.topAnchor),
-            blurEffect.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            blurEffect.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            blurEffect.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ]
-        
-        NSLayoutConstraint.activate(constraints)
+        setupBlurEffect(in: view)
         
         view.layer.cornerRadius = 16.0
         blurEffect.layer.cornerRadius = 16.0
@@ -154,8 +152,34 @@ extension CoverSheetController {
         sheetContentViewController.update(sheet)
     }
     
+    public func updateSheet(shouldBlur: Bool, backgroundColor: UIColor) {
+        self.blurEffectEnabled = shouldBlur
+        
+        if shouldBlur {
+            addBlur(to: sheetView)
+        } else {
+            removeBlur()
+        }
+     
+        sheetView.backgroundColor = backgroundColor
+    }
+    
     public func getAdjustedHeight() -> CGFloat {
         return manager.stateConstant * view.frame.height
+    }
+}
+
+// MARK: Public helper methods
+extension CoverSheetController {
+    private func removeBlur() {
+        handlePadding.alpha = 1.0
+        blurEffect.removeFromSuperview()
+    }
+    
+    private func addBlur(to view: UIView) {
+        if !view.subviews.contains(blurEffect) {
+            setupBlurEffect(in: view)
+        }
     }
 }
 
@@ -241,7 +265,7 @@ extension CoverSheetController {
     private func animateSheet() {
         isTransitioning = true
         
-        UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseIn) { [manager, sheetView, superFrame = view.frame] in
+        UIView.animate(withDuration: 0.1, delay: 0, options: .curveLinear) { [manager, sheetView, superFrame = view.frame] in
             let finalHeight = (superFrame.height) * manager.stateConstant
             let diffHeight = superFrame.height - finalHeight
             sheetView.frame = CGRect(x: 0, y: diffHeight, width: superFrame.width, height: superFrame.height)
@@ -298,6 +322,23 @@ extension CoverSheetController {
 
 // MARK: Constraints and Positioning
 extension CoverSheetController {
+    
+    private func setupBlurEffect(in view: UIView) {
+        view.insertSubview(blurEffect, at: 0)
+        
+        blurEffect.translatesAutoresizingMaskIntoConstraints = false
+        
+        handlePadding.alpha = 0.5
+        
+        let constraints = [
+            blurEffect.topAnchor.constraint(equalTo: view.topAnchor),
+            blurEffect.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            blurEffect.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            blurEffect.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ]
+        
+        NSLayoutConstraint.activate(constraints)
+    }
     
     private func setupHandleBar(in view: UIView) {
         view.addSubview(handlePadding)
@@ -393,35 +434,5 @@ extension CoverSheetController {
     private func setupBottomSheet() {
         self.view.addSubview(sheetView)
         animateSheet()
-    }
-}
-
-// MARK: SwiftUI ViewRepresentable
-public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UIViewControllerRepresentable {
-    @ObservedObject
-    var manager: ViewManager
-    
-    @ViewBuilder
-    public var inner: () -> Inner
-    
-    @ViewBuilder
-    public var sheet: (CGFloat) -> Sheet
-    
-    public init(_ manager: ViewManager,
-                _ inner: @escaping () -> Inner,
-                sheet: @escaping (CGFloat) -> Sheet) {
-        _manager = ObservedObject(wrappedValue: manager)
-        self.inner = inner
-        self.sheet = sheet
-    }
-    
-    public func makeUIViewController(context: Context) -> CoverSheetController {
-        let vc = CoverSheetController(manager: manager, states: manager.states)
-        vc.configure(inner: inner(), sheet: sheet(vc.getAdjustedHeight()))
-        return vc
-    }
-    
-    public func updateUIViewController(_ uiViewController: CoverSheetController, context: Context) {
-        uiViewController.updateViews(inner: inner(), sheet: sheet(uiViewController.getAdjustedHeight()))
     }
 }

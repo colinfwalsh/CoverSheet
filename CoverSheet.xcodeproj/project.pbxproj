@@ -30,6 +30,8 @@
 		BD0C8E8F29A00D0C00CCA55A /* SheetState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0C8E8A29A00D0C00CCA55A /* SheetState.swift */; };
 		BD0C8E9029A00D0C00CCA55A /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0C8E8B29A00D0C00CCA55A /* ContainerViewController.swift */; };
 		BD0C8E9129A00D0C00CCA55A /* Reloadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0C8E8C29A00D0C00CCA55A /* Reloadable.swift */; };
+		BDD52D0329A6759A00A54811 /* CoverSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD52D0229A6759A00A54811 /* CoverSheetView.swift */; };
+		BDD52D0529A676AD00A54811 /* Color+UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD52D0429A676AD00A54811 /* Color+UIColor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -106,6 +108,8 @@
 		BD0C8E8A29A00D0C00CCA55A /* SheetState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SheetState.swift; sourceTree = "<group>"; };
 		BD0C8E8B29A00D0C00CCA55A /* ContainerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
 		BD0C8E8C29A00D0C00CCA55A /* Reloadable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reloadable.swift; sourceTree = "<group>"; };
+		BDD52D0229A6759A00A54811 /* CoverSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverSheetView.swift; sourceTree = "<group>"; };
+		BDD52D0429A676AD00A54811 /* Color+UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+UIColor.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,6 +175,8 @@
 			children = (
 				BD0C8E8B29A00D0C00CCA55A /* ContainerViewController.swift */,
 				BD0C8E8929A00D0C00CCA55A /* CoverSheetController.swift */,
+				BDD52D0229A6759A00A54811 /* CoverSheetView.swift */,
+				BDD52D0429A676AD00A54811 /* Color+UIColor.swift */,
 				BD0C8E8C29A00D0C00CCA55A /* Reloadable.swift */,
 				BD0C8E8829A00D0C00CCA55A /* DefaultSheetManager.swift */,
 				BD0C8E8A29A00D0C00CCA55A /* SheetState.swift */,
@@ -404,9 +410,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				BD0C8E9129A00D0C00CCA55A /* Reloadable.swift in Sources */,
+				BDD52D0329A6759A00A54811 /* CoverSheetView.swift in Sources */,
 				BD0C8DCC299FF5F200CCA55A /* CoverSheet.docc in Sources */,
 				BD0C8E8F29A00D0C00CCA55A /* SheetState.swift in Sources */,
 				BD0C8E9029A00D0C00CCA55A /* ContainerViewController.swift in Sources */,
+				BDD52D0529A676AD00A54811 /* Color+UIColor.swift in Sources */,
 				BD0C8E8D29A00D0C00CCA55A /* DefaultSheetManager.swift in Sources */,
 				BD0C8E8E29A00D0C00CCA55A /* CoverSheetController.swift in Sources */,
 			);
