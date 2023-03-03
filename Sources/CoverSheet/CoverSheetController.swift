@@ -274,7 +274,7 @@ extension CoverSheetController {
 extension CoverSheetController {
     private func animateSheet() {
         isTransitioning = true
-        UIView.animate(withDuration: 0.3,
+        UIView.animate(withDuration: 0.23,
                        delay: 0,
                        usingSpringWithDamping: 2.0,
                        initialSpringVelocity: 7.0,
@@ -288,13 +288,12 @@ extension CoverSheetController {
             
             DispatchQueue.main.async {
                 self.isTransitioning = false
-            }
-            
-            if self.currentState == .fullScreen && self.sheetView.layer.cornerRadius > 0 {
-                self.animateAllCorners(from: 16.0, to: 0.0, duration: 0.2)
-            } else if self.currentState != .fullScreen {
-                if self.sheetView.layer.cornerRadius == 0 {
-                    self.animateAllCorners(from: 0.0, to: 16.0, duration: 0.2)
+                if self.currentState == .fullScreen && self.sheetView.layer.cornerRadius > 0 {
+                    self.animateAllCorners(from: 16.0, to: 0.0, duration: 0.2)
+                } else if self.currentState != .fullScreen {
+                    if self.sheetView.layer.cornerRadius == 0 {
+                        self.animateAllCorners(from: 0.0, to: 16.0, duration: 0.2)
+                    }
                 }
             }
         }
