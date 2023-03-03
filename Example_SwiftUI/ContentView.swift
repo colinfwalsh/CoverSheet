@@ -57,8 +57,8 @@ struct ContentView: View {
             .disabled(true)
             .background(Color.blue)
         }
-        .enableBlurEffect(enableBlur)
         .sheetBackgroundColor(backgroundColor)
+        .enableBlurEffect(enableBlur)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 enableBlur.toggle()

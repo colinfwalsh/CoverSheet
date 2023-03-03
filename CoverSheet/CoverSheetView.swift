@@ -12,7 +12,7 @@ import SwiftUI
 // MARK: SwiftUI ViewRepresentable
 public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UIViewControllerRepresentable {
     @ObservedObject
-    var manager: ViewManager
+    private var manager: ViewManager
     
     private var useBlurEffect: Bool
     
@@ -37,8 +37,7 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
     }
     
     public func makeUIViewController(context: Context) -> CoverSheetController {
-        let vc = CoverSheetController(manager: manager,
-                                      states: manager.states,
+        let vc = CoverSheetController(delegate: manager,
                                       shouldUseEffect: useBlurEffect,
                                       sheetColor: sheetColor)
         vc.configure(inner: inner(), sheet: sheet(vc.getAdjustedHeight()))
