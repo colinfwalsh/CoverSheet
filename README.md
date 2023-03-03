@@ -10,6 +10,10 @@ Using CoverSheet is easy in SwiftUI, and an example is included in Example_Swift
 
 CoverSheet accepts any UIViewController as arguments in it's `configure` method.  Simply initialize CoverSheet and configure with the corresponding UIViewControllers
 
+## Install
+
+Simply go to `Add Packages -> URL -> <this git repo url>` to add to your project in XCode.  Latest version is `0.1.0`.
+
 ## Delegate and Manager
 
 Right now CoverSheet just supports one delegate method `coverSheet(currentState: SheetState)`.  The method will inform you of whenver the sheet state changes so you can update views as needed.  Also included is a `DefaultManager` for use in SwiftUI.  If you need to create your manager, simply conform to the `Manager` protocol.
