@@ -12,7 +12,7 @@ CoverSheet accepts any UIViewController as arguments in it's `configure` method.
 
 ## Install
 
-Simply go to `Add Packages -> URL -> <this git repo url>` to add to your project in XCode.  Latest version is `0.1.0`.
+Simply go to `Add Packages -> URL -> https://github.com/colinfwalsh/CoverSheet` to add to your project in XCode.  Latest version is `0.1.0`.
 
 ## Delegate and Manager
 
