@@ -274,8 +274,11 @@ extension CoverSheetController {
 extension CoverSheetController {
     private func animateSheet() {
         isTransitioning = true
-        
-        UIView.animate(withDuration: 0.1, delay: 0, options: .curveLinear) { [currentState, sheetView, superFrame = view.frame] in
+        UIView.animate(withDuration: 0.3,
+                       delay: 0,
+                       usingSpringWithDamping: 2.0,
+                       initialSpringVelocity: 7.0,
+                       options: .curveLinear) { [currentState, sheetView, superFrame = view.frame] in
             let finalHeight = (superFrame.height) * currentState.rawValue
             let diffHeight = superFrame.height - finalHeight
             sheetView.frame = CGRect(x: 0, y: diffHeight, width: superFrame.width, height: superFrame.height)
