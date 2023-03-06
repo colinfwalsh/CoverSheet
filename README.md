@@ -56,6 +56,7 @@ To configure `CoverSheet` you have a few options depending on which UI framework
 ## Project example
 
 [SwiftUI Example][cover-example-swiftUI] - example of using `CoverSheet` in SwiftUI
+
 [UIKit Example][cover-example-uikit] - example of using `CoverSheet` in UIKit
 
 [swift version]: https://swift.org/download/
