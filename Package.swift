@@ -25,5 +25,6 @@ let package = Package(
         .testTarget(
             name: "CoverSheetTests",
             dependencies: ["CoverSheet"]),
-    ]
+    ],
+    swiftLanguageVersions: [.v5]
 )

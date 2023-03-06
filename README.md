@@ -11,9 +11,11 @@ ___
 
 | **Platform** | **Minimum Swift Version**  |
 |:----------|:----------|
-| iOS 13+    | 5.7   |
+| iOS 13+    | 5.0   |
 
 ## Installation
+
+### SPM
 
 If you're using [Swift package manager][spm], simply add CoverSheet as a dependency in your `Package.swift` file.
 
@@ -21,6 +23,12 @@ If you're using [Swift package manager][spm], simply add CoverSheet as a depende
 dependencies: [
     .package(url: "https://github.com/colinfwalsh/CoverSheet.git", branch(“main”))
 ]
+```
+
+### Cocoapods
+
+```Pods
+pod 'CoverSheet', '~> 0.1.0'
 ```
 
 ### Setup project
@@ -60,7 +68,7 @@ To configure `CoverSheet` you have a few options depending on which UI framework
 [UIKit Example][cover-example-uikit] - example of using `CoverSheet` in UIKit
 
 [swift version]: https://swift.org/download/
-[swift version badge]: https://img.shields.io/badge/swift-5.7-orange
+[swift version badge]: https://img.shields.io/badge/swift-5.0-red
 [platforms badge]: https://img.shields.io/badge/platforms-ios-lightgrey
 [platforms]: https://swift.org/download/
 [mit badge]: https://img.shields.io/badge/license-MIT-lightgrey
