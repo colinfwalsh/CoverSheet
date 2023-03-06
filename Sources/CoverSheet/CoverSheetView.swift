@@ -18,6 +18,8 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
     
     private var sheetColor: UIColor
     
+    private var states: [SheetState] = []
+    
     @ViewBuilder
     public var inner: () -> Inner
     
@@ -25,11 +27,13 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
     public var sheet: (CGFloat) -> Sheet
     
     public init(_ manager: ViewManager,
+                states: [SheetState] = [],
                 useBlurEffect: Bool = true,
                 sheetColor: UIColor = .white,
                 _ inner: @escaping () -> Inner,
                 sheet: @escaping (CGFloat) -> Sheet) {
         _manager = ObservedObject(wrappedValue: manager)
+        self.states = states
         self.useBlurEffect = useBlurEffect
         self.sheetColor = sheetColor
         self.inner = inner
@@ -37,9 +41,11 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
     }
     
     public func makeUIViewController(context: Context) -> CoverSheetController {
-        let vc = CoverSheetController(delegate: manager,
+        let updatedStates = states.isEmpty ? [.minimized, .normal, .full] : states
+        let vc = CoverSheetController(states: updatedStates,
                                       shouldUseEffect: useBlurEffect,
                                       sheetColor: sheetColor)
+        vc.delegate = manager
         vc.configure(inner: inner(), sheet: sheet(vc.getAdjustedHeight()))
         return vc
     }
@@ -50,6 +56,7 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
     }
 }
 
+// MARK: View Modifiers
 public extension CoverSheetView {
     func enableBlurEffect(_ bool: Bool) -> Self {
         var view = self

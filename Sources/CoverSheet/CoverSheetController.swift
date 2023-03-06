@@ -10,11 +10,7 @@ import UIKit
 import SwiftUI
 import Combine
 
-public protocol CoverSheetDelegate: AnyObject {
-    func coverSheet(currentState: SheetState)
-}
-
-public class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
+open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     @Published
     private var currentState: SheetState = .normal
@@ -29,21 +25,20 @@ public class CoverSheetController: UIViewController, UIGestureRecognizerDelegate
     
     private var cancellables: Set<AnyCancellable> = []
     
-    private weak var delegate: CoverSheetDelegate?
+    public weak var delegate: CoverSheetDelegate?
     
-    init(states: [SheetState] = [.minimized, .normal, .full],
-         delegate: CoverSheetDelegate? = nil,
+    public init(states: [SheetState] = [.minimized, .normal, .full],
          shouldUseEffect: Bool = false,
          sheetColor: UIColor = .white) {
         self.states = states
-        self.delegate = delegate
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
         super.init(nibName: nil, bundle: nil)
     }
     
-    required init?(coder: NSCoder) {
+    required public init?(coder: NSCoder) {
         super.init(coder: coder)
+        self.states = [.minimized, .normal, .full]
     }
     
     private var insets: UIEdgeInsets {
@@ -122,7 +117,7 @@ public class CoverSheetController: UIViewController, UIGestureRecognizerDelegate
         return vc
     }()
     
-    public override func viewDidLoad() {
+    open override func viewDidLoad() {
         super.viewDidLoad()
         
         setupInnerView()
@@ -213,7 +208,6 @@ extension CoverSheetController {
             let maxHeight = abs(frameHeight - (frameHeight * (states.last?.rawValue ?? 0.0)))
             let minHeight = abs(frameHeight - (frameHeight * (states.first?.rawValue ?? 0.0)))
             
-            print(minHeight, maxHeight)
             guard offset >= maxHeight && offset <= minHeight
             else {
                 let sheetPoint = CGPoint(x: sheetView.frame.minX, y: view.frame.height - sheetView.frame.minY)
@@ -274,7 +268,7 @@ extension CoverSheetController {
 extension CoverSheetController {
     private func animateSheet() {
         isTransitioning = true
-        UIView.animate(withDuration: 0.23,
+        UIView.animate(withDuration: 0.15,
                        delay: 0,
                        usingSpringWithDamping: 2.0,
                        initialSpringVelocity: 7.0,
@@ -288,11 +282,11 @@ extension CoverSheetController {
             
             DispatchQueue.main.async {
                 self.isTransitioning = false
-                if self.currentState == .fullScreen && self.sheetView.layer.cornerRadius > 0 {
-                    self.animateAllCorners(from: 16.0, to: 0.0, duration: 0.2)
-                } else if self.currentState != .fullScreen {
+                if self.currentState == .cover && self.sheetView.layer.cornerRadius > 0 {
+                    self.animateAllCorners(from: 16.0, to: 0.0, duration: 0.1)
+                } else if self.currentState != .cover {
                     if self.sheetView.layer.cornerRadius == 0 {
-                        self.animateAllCorners(from: 0.0, to: 16.0, duration: 0.2)
+                        self.animateAllCorners(from: 0.0, to: 16.0, duration: 0.1)
                     }
                 }
             }
@@ -365,14 +359,18 @@ extension CoverSheetController {
     private func setupHandlePaddingConstraints(for handlePadding: UIView, with view: UIView) {
         handlePadding.translatesAutoresizingMaskIntoConstraints = false
         
-        let constraints = [
-            NSLayoutConstraint(item: handlePadding,
+        let handleHeight = NSLayoutConstraint(item: handlePadding,
                                attribute: .height,
                                relatedBy: .equal,
                                toItem: nil,
                                attribute: .notAnAttribute,
                                multiplier: 1,
-                               constant: 50),
+                               constant: 50)
+        
+        handleHeight.priority = .defaultLow
+        
+        let constraints = [
+            handleHeight,
             handlePadding.topAnchor.constraint(equalTo: view.topAnchor),
             handlePadding.leftAnchor.constraint(equalTo: view.leftAnchor),
             handlePadding.rightAnchor.constraint(equalTo: view.rightAnchor)
