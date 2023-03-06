@@ -208,7 +208,6 @@ extension CoverSheetController {
             let maxHeight = abs(frameHeight - (frameHeight * (states.last?.rawValue ?? 0.0)))
             let minHeight = abs(frameHeight - (frameHeight * (states.first?.rawValue ?? 0.0)))
             
-            print(minHeight, maxHeight)
             guard offset >= maxHeight && offset <= minHeight
             else {
                 let sheetPoint = CGPoint(x: sheetView.frame.minX, y: view.frame.height - sheetView.frame.minY)

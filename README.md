@@ -56,6 +56,7 @@ To configure `CoverSheet` you have a few options depending on which UI framework
 ## Project example
 
 [SwiftUI Example][cover-example-swiftUI] - example of using `CoverSheet` in SwiftUI
+[UIKit Example][cover-example-uikit] - example of using `CoverSheet` in UIKit
 
 [swift version]: https://swift.org/download/
 [swift version badge]: https://img.shields.io/badge/swift-5.7-orange
@@ -68,6 +69,7 @@ To configure `CoverSheet` you have a few options depending on which UI framework
 [ios badge]: https://img.shields.io/badge/iOS-13%2B-blue
 [ios]: https://developer.apple.com/documentation/ios-ipados-release-notes/ios-ipados-15-release-notes
 
-[cover-example-swiftUI]: https://github.com/colinfwalsh/CoverSheet/tree/main/Example_SwiftUI
+[cover-example-swiftUI]: https://github.com/colinfwalsh/CoverSheet-SwiftUI-Example
+[cover-example-uikit]: https://github.com/colinfwalsh/CoverSheet-UIKit-Example
 
 [example-gif]: hhttps://tenor.com/b2c9m.gif
