@@ -74,7 +74,7 @@ To configure `CoverSheet` you have a few options depending on which UI framework
 [mit badge]: https://img.shields.io/badge/license-MIT-lightgrey
 [mit]: https://github.com/Mijick/PopupView/blob/main/LICENSE
 [spm badge]: https://img.shields.io/badge/spm-compatible-green
-[pods_badge]: https://img.shields.io/cocoapods/v/CoverSheet
+[pods_badge]: https://img.shields.io/cocoapods/v/CoverSheet?style=flat-square
 [spm]: https://www.swift.org/package-manager/
 [ios badge]: https://img.shields.io/badge/iOS-13%2B-blue
 [ios]: https://developer.apple.com/documentation/ios-ipados-release-notes/ios-ipados-15-release-notes
