@@ -360,14 +360,18 @@ extension CoverSheetController {
     private func setupHandlePaddingConstraints(for handlePadding: UIView, with view: UIView) {
         handlePadding.translatesAutoresizingMaskIntoConstraints = false
         
-        let constraints = [
-            NSLayoutConstraint(item: handlePadding,
+        let handleHeight = NSLayoutConstraint(item: handlePadding,
                                attribute: .height,
                                relatedBy: .equal,
                                toItem: nil,
                                attribute: .notAnAttribute,
                                multiplier: 1,
-                               constant: 50),
+                               constant: 50)
+        
+        handleHeight.priority = .defaultLow
+        
+        let constraints = [
+            handleHeight,
             handlePadding.topAnchor.constraint(equalTo: view.topAnchor),
             handlePadding.leftAnchor.constraint(equalTo: view.leftAnchor),
             handlePadding.rightAnchor.constraint(equalTo: view.rightAnchor)
