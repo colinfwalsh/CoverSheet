@@ -6,14 +6,20 @@
 //
 
 import UIKit
+import CoverSheet
 
-class ViewController: UIViewController {
+class ViewController: CoverSheetController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
+        let innerVc = UIViewController()
+        innerVc.view.translatesAutoresizingMaskIntoConstraints = false
+        innerVc.view.backgroundColor = .gray
+        let sheetVc = UIViewController()
+        sheetVc.view.translatesAutoresizingMaskIntoConstraints = false
+        
+        configure(inner: innerVc, sheet: sheetVc)
     }
-
-
 }
 

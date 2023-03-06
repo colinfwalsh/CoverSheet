@@ -10,7 +10,7 @@ import UIKit
 import SwiftUI
 import Combine
 
-public class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
+open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     @Published
     private var currentState: SheetState = .normal
@@ -27,7 +27,7 @@ public class CoverSheetController: UIViewController, UIGestureRecognizerDelegate
     
     public weak var delegate: CoverSheetDelegate?
     
-    init(states: [SheetState] = [.minimized, .normal, .full],
+    public init(states: [SheetState] = [.minimized, .normal, .full],
          shouldUseEffect: Bool = false,
          sheetColor: UIColor = .white) {
         self.states = states
@@ -36,7 +36,7 @@ public class CoverSheetController: UIViewController, UIGestureRecognizerDelegate
         super.init(nibName: nil, bundle: nil)
     }
     
-    required init?(coder: NSCoder) {
+    required public init?(coder: NSCoder) {
         super.init(coder: coder)
         self.states = [.minimized, .normal, .full]
     }
@@ -117,7 +117,7 @@ public class CoverSheetController: UIViewController, UIGestureRecognizerDelegate
         return vc
     }()
     
-    public override func viewDidLoad() {
+    open override func viewDidLoad() {
         super.viewDidLoad()
         
         setupInnerView()
