@@ -1,6 +1,6 @@
 # Cover Sheet
 
-[![Swift Version][swift version badge]][swift version] [![Platform][platforms badge]][platforms] [![SPM][spm badge]][spm] [![IOS][ios badge]][ios] [![MIT][mit badge]][mit]
+[![Swift Version][swift version badge]][swift version] [![Platform][platforms badge]][platforms] [![SPM][spm badge]][spm] [![IOS][ios badge]][ios] [![MIT][mit badge]][mit] ![Pod Version][pods_badge]
 
 Cover sheet is a dynamic, customizable, sheet that supports both UIKit and SwiftUI.  You'll also be able to mix and match SwiftUI and UIKit views as needed to create any view you can imagine.  In addition, CoverSheet also supports dynamic fullscreen animations similar to what you'd see in the `Messages` app on iPhone.
 
@@ -74,6 +74,7 @@ To configure `CoverSheet` you have a few options depending on which UI framework
 [mit badge]: https://img.shields.io/badge/license-MIT-lightgrey
 [mit]: https://github.com/Mijick/PopupView/blob/main/LICENSE
 [spm badge]: https://img.shields.io/badge/spm-compatible-green
+[pods_badge]: https://img.shields.io/cocoapods/v/CoverSheet
 [spm]: https://www.swift.org/package-manager/
 [ios badge]: https://img.shields.io/badge/iOS-13%2B-blue
 [ios]: https://developer.apple.com/documentation/ios-ipados-release-notes/ios-ipados-15-release-notes
