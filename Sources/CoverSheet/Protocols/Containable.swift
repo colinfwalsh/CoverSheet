@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 import UIKit
 
-protocol Reloadable: UIViewController {
+public protocol Containable: UIViewController {
     var hostingViewController: UIViewController? { get set }
     func configure(_ view: some View)
     func update<Content: View>(_ view: Content)

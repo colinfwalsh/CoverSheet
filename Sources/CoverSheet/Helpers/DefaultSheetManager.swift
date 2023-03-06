@@ -9,11 +9,6 @@
 import Foundation
 import Combine
 
-public protocol Manager: ObservableObject, CoverSheetDelegate {
-    var sheetState: SheetState { get set }
-    var stateConstant: CGFloat { get }
-}
-
 public class DefaultSheetManager: Manager {
     @Published
     public var sheetState: SheetState = .normal

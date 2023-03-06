@@ -10,10 +10,6 @@ import UIKit
 import SwiftUI
 import Combine
 
-public protocol CoverSheetDelegate: AnyObject {
-    func coverSheet(currentState: SheetState)
-}
-
 public class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     @Published
@@ -29,14 +25,12 @@ public class CoverSheetController: UIViewController, UIGestureRecognizerDelegate
     
     private var cancellables: Set<AnyCancellable> = []
     
-    private weak var delegate: CoverSheetDelegate?
+    public weak var delegate: CoverSheetDelegate?
     
     init(states: [SheetState] = [.minimized, .normal, .full],
-         delegate: CoverSheetDelegate? = nil,
          shouldUseEffect: Bool = false,
          sheetColor: UIColor = .white) {
         self.states = states
-        self.delegate = delegate
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
         super.init(nibName: nil, bundle: nil)
@@ -44,6 +38,7 @@ public class CoverSheetController: UIViewController, UIGestureRecognizerDelegate
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+        self.states = [.minimized, .normal, .full]
     }
     
     private var insets: UIEdgeInsets {
@@ -274,7 +269,7 @@ extension CoverSheetController {
 extension CoverSheetController {
     private func animateSheet() {
         isTransitioning = true
-        UIView.animate(withDuration: 0.23,
+        UIView.animate(withDuration: 0.15,
                        delay: 0,
                        usingSpringWithDamping: 2.0,
                        initialSpringVelocity: 7.0,
@@ -288,11 +283,11 @@ extension CoverSheetController {
             
             DispatchQueue.main.async {
                 self.isTransitioning = false
-                if self.currentState == .fullScreen && self.sheetView.layer.cornerRadius > 0 {
-                    self.animateAllCorners(from: 16.0, to: 0.0, duration: 0.2)
-                } else if self.currentState != .fullScreen {
+                if self.currentState == .cover && self.sheetView.layer.cornerRadius > 0 {
+                    self.animateAllCorners(from: 16.0, to: 0.0, duration: 0.1)
+                } else if self.currentState != .cover {
                     if self.sheetView.layer.cornerRadius == 0 {
-                        self.animateAllCorners(from: 0.0, to: 16.0, duration: 0.2)
+                        self.animateAllCorners(from: 0.0, to: 16.0, duration: 0.1)
                     }
                 }
             }

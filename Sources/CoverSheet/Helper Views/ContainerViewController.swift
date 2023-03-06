@@ -9,7 +9,7 @@
 import UIKit
 import SwiftUI
 
-class ContainerViewController: UIViewController, Reloadable {
+class ContainerViewController: UIViewController, Containable {
     
     internal var hostingViewController: UIViewController?
 

@@ -11,16 +11,15 @@ import Foundation
 public enum SheetState: Equatable {
     typealias RawValue = CGFloat
     
-    case fullScreen
+    case cover
     case full
     case normal
     case minimized
-    case closed
     case custom(CGFloat)
     
     var rawValue: CGFloat {
         switch self {
-        case .fullScreen:
+        case .cover:
             return 1.0
         case .full:
             return 0.9
@@ -28,8 +27,6 @@ public enum SheetState: Equatable {
             return 0.7
         case .minimized:
             return 0.35
-        case .closed:
-            return 0.10
         case let .custom(value):
             return value
         }
