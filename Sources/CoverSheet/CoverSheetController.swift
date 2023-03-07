@@ -157,6 +157,10 @@ extension CoverSheetController {
         sheetContentViewController.update(sheet)
     }
     
+    public func overrideStates(_ states: [SheetState]) {
+        self.states = states
+    }
+    
     public func updateSheet(shouldBlur: Bool, backgroundColor: UIColor) {
         self.blurEffectEnabled = shouldBlur
         
