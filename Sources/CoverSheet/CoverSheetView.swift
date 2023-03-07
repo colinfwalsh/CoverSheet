@@ -18,6 +18,8 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
     
     private var sheetColor: UIColor
     
+    private var animationConfig: AnimationConfig
+    
     private var states: [SheetState] = []
     
     @ViewBuilder
@@ -28,14 +30,13 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
     
     public init(_ manager: ViewManager,
                 states: [SheetState] = [],
-                useBlurEffect: Bool = true,
-                sheetColor: UIColor = .white,
                 _ inner: @escaping () -> Inner,
                 sheet: @escaping (CGFloat) -> Sheet) {
         _manager = ObservedObject(wrappedValue: manager)
         self.states = states
-        self.useBlurEffect = useBlurEffect
-        self.sheetColor = sheetColor
+        self.useBlurEffect = false
+        self.sheetColor = .white
+        self.animationConfig = AnimationConfig()
         self.inner = inner
         self.sheet = sheet
     }
@@ -47,12 +48,14 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
                                       sheetColor: sheetColor)
         vc.delegate = manager
         vc.configure(inner: inner(), sheet: sheet(vc.getAdjustedHeight()))
+        vc.overrideAnimationConfig(animationConfig)
         return vc
     }
     
     public func updateUIViewController(_ uiViewController: CoverSheetController, context: Context) {
         uiViewController.updateViews(inner: inner(), sheet: sheet(uiViewController.getAdjustedHeight()))
         uiViewController.updateSheet(shouldBlur: useBlurEffect, backgroundColor: sheetColor)
+        uiViewController.overrideAnimationConfig(animationConfig)
     }
 }
 
@@ -61,6 +64,18 @@ public extension CoverSheetView {
     func enableBlurEffect(_ bool: Bool) -> Self {
         var view = self
         view.useBlurEffect = bool
+        return view
+    }
+    
+    func animationOptions(_ timing: CGFloat,
+                          options: UIView.AnimationOptions = [.curveLinear, .allowUserInteraction],
+                          springDampening: CGFloat = 2.0,
+                          springVelocity: CGFloat = 7.0) -> Self {
+        var view = self
+        view.animationConfig = AnimationConfig(timing: timing,
+                                               options: options,
+                                               springDamping: springDampening,
+                                               springVelocity: springVelocity)
         return view
     }
     
