@@ -137,7 +137,9 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
                 guard !self.initialLoad
                 else {
                     self.initialLoad = false
-                    self.currentState = .normal
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.currentState = .normal
+                    }
                     return
                 }
                 
@@ -468,5 +470,10 @@ extension CoverSheetController {
     
     private func setupBottomSheet() {
         self.view.addSubview(sheetView)
+        let frameHeight = view.frame.height * currentState.rawValue
+        sheetView.frame = CGRect(x: 0,
+                                 y: view.frame.height - frameHeight,
+                                 width: view.frame.width,
+                                 height: view.frame.height)
     }
 }
