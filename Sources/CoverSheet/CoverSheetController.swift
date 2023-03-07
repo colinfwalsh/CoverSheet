@@ -66,7 +66,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     private lazy var handle: UIView = {
         let view = UIView()
         view.backgroundColor = .lightGray
-        view.layer.cornerRadius = 5
+        view.layer.cornerRadius = 2.5
         view.clipsToBounds = true
         
         return view
@@ -403,7 +403,7 @@ extension CoverSheetController {
                                multiplier: 1,
                                constant: 50),
             handle.centerXAnchor.constraint(equalTo: handlePadding.centerXAnchor),
-            handle.topAnchor.constraint(equalTo: handlePadding.topAnchor, constant: 25)
+            handle.topAnchor.constraint(equalTo: handlePadding.topAnchor, constant: 10)
         ]
         
         NSLayoutConstraint.activate(constraints)
