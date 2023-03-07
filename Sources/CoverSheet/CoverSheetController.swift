@@ -19,6 +19,8 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     private var isTransitioning: Bool = false
     
+    private var initialLoad: Bool = true
+    
     private var blurEffectEnabled: Bool = false
     
     private var sheetColor: UIColor = .clear
@@ -133,8 +135,10 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
                 
                 self.delegate?.coverSheet(currentState: $0)
                 
-                guard !self.isTransitioning
-                else { return }
+                guard !self.isTransitioning && !self.initialLoad
+                else {
+                    self.initialLoad = false
+                    return }
                 
                 self.animateSheet()
         }
