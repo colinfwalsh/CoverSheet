@@ -13,11 +13,13 @@ import Combine
 open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     @Published
-    private var currentState: SheetState = .normal
+    private var currentState: SheetState = .custom(0.0)
     
     private var states: [SheetState] = []
     
     private var isTransitioning: Bool = false
+    
+    private var initialLoad: Bool = true
     
     private var blurEffectEnabled: Bool = false
     
@@ -25,12 +27,14 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     private var cancellables: Set<AnyCancellable> = []
     
+    private var animationConfig: AnimationConfig = AnimationConfig()
+    
     public weak var delegate: CoverSheetDelegate?
     
     public init(states: [SheetState] = [.minimized, .normal, .full],
          shouldUseEffect: Bool = false,
          sheetColor: UIColor = .white) {
-        self.states = states
+        self.states = states.sorted(by: >)
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
         super.init(nibName: nil, bundle: nil)
@@ -66,7 +70,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     private lazy var handle: UIView = {
         let view = UIView()
         view.backgroundColor = .lightGray
-        view.layer.cornerRadius = 5
+        view.layer.cornerRadius = 2.5
         view.clipsToBounds = true
         
         return view
@@ -130,6 +134,14 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
                 else { return }
                 
                 self.delegate?.coverSheet(currentState: $0)
+                guard !self.initialLoad
+                else {
+                    self.initialLoad = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.currentState = .normal
+                    }
+                    return
+                }
                 
                 guard !self.isTransitioning
                 else { return }
@@ -155,6 +167,21 @@ extension CoverSheetController {
     public func updateViews(inner: some View, sheet: some View) {
         innerContentViewController.update(inner)
         sheetContentViewController.update(sheet)
+    }
+    
+    public func overrideStates(_ states: [SheetState]) {
+        let sorted = states.sorted(by: >)
+        self.states = sorted
+    }
+    
+    public func overrideAnimationValues(timing: CGFloat = 0.1,
+                                        options: UIView.AnimationOptions = [.curveLinear],
+                                        springDamping: CGFloat = 2.0,
+                                        springVelocity: CGFloat = 7.0) {
+        self.animationConfig = AnimationConfig(timing: timing,
+                                               options: options,
+                                               springDamping: springDamping,
+                                               springVelocity: springVelocity)
     }
     
     public func updateSheet(shouldBlur: Bool, backgroundColor: UIColor) {
@@ -268,25 +295,25 @@ extension CoverSheetController {
 extension CoverSheetController {
     private func animateSheet() {
         isTransitioning = true
-        UIView.animate(withDuration: 0.15,
+        UIView.animate(withDuration: animationConfig.timing,
                        delay: 0,
-                       usingSpringWithDamping: 2.0,
-                       initialSpringVelocity: 7.0,
-                       options: .curveLinear) { [currentState, sheetView, superFrame = view.frame] in
+                       usingSpringWithDamping: animationConfig.springDamping,
+                       initialSpringVelocity: animationConfig.springVelocity,
+                       options: animationConfig.options) { [currentState, sheetView, superFrame = view.frame] in
             let finalHeight = (superFrame.height) * currentState.rawValue
             let diffHeight = superFrame.height - finalHeight
             sheetView.frame = CGRect(x: 0, y: diffHeight, width: superFrame.width, height: superFrame.height)
-        } completion: { [weak self] _ in
+        } completion: { [weak self, timing = animationConfig.timing] _ in
             guard let self = self
             else { return }
             
             DispatchQueue.main.async {
                 self.isTransitioning = false
                 if self.currentState == .cover && self.sheetView.layer.cornerRadius > 0 {
-                    self.animateAllCorners(from: 16.0, to: 0.0, duration: 0.1)
+                    self.animateAllCorners(from: 16.0, to: 0.0, duration: timing)
                 } else if self.currentState != .cover {
                     if self.sheetView.layer.cornerRadius == 0 {
-                        self.animateAllCorners(from: 0.0, to: 16.0, duration: 0.1)
+                        self.animateAllCorners(from: 0.0, to: 16.0, duration: timing)
                     }
                 }
             }
@@ -365,7 +392,7 @@ extension CoverSheetController {
                                toItem: nil,
                                attribute: .notAnAttribute,
                                multiplier: 1,
-                               constant: 50)
+                               constant: 15)
         
         handleHeight.priority = .defaultLow
         
@@ -389,7 +416,7 @@ extension CoverSheetController {
                                toItem: nil,
                                attribute: .notAnAttribute,
                                multiplier: 1,
-                               constant: 10),
+                               constant: 5),
             NSLayoutConstraint(item: handle,
                                attribute: .width,
                                relatedBy: .equal,
@@ -398,7 +425,7 @@ extension CoverSheetController {
                                multiplier: 1,
                                constant: 50),
             handle.centerXAnchor.constraint(equalTo: handlePadding.centerXAnchor),
-            handle.topAnchor.constraint(equalTo: handlePadding.topAnchor, constant: 25)
+            handle.topAnchor.constraint(equalTo: handlePadding.topAnchor, constant: 10)
         ]
         
         NSLayoutConstraint.activate(constraints)
@@ -443,5 +470,10 @@ extension CoverSheetController {
     
     private func setupBottomSheet() {
         self.view.addSubview(sheetView)
+        let frameHeight = view.frame.height * currentState.rawValue
+        sheetView.frame = CGRect(x: 0,
+                                 y: view.frame.height - frameHeight,
+                                 width: view.frame.width,
+                                 height: view.frame.height)
     }
 }
