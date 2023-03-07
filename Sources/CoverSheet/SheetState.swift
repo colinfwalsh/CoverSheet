@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum SheetState: Equatable {
+public enum SheetState: Equatable, Comparable {
     typealias RawValue = CGFloat
     
     case cover

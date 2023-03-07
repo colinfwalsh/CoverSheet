@@ -30,7 +30,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     public init(states: [SheetState] = [.minimized, .normal, .full],
          shouldUseEffect: Bool = false,
          sheetColor: UIColor = .white) {
-        self.states = states
+        self.states = states.sorted(by: >)
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
         super.init(nibName: nil, bundle: nil)
@@ -66,7 +66,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     private lazy var handle: UIView = {
         let view = UIView()
         view.backgroundColor = .lightGray
-        view.layer.cornerRadius = 5
+        view.layer.cornerRadius = 2.5
         view.clipsToBounds = true
         
         return view
@@ -155,6 +155,11 @@ extension CoverSheetController {
     public func updateViews(inner: some View, sheet: some View) {
         innerContentViewController.update(inner)
         sheetContentViewController.update(sheet)
+    }
+    
+    public func overrideStates(_ states: [SheetState]) {
+        let sorted = states.sorted(by: >)
+        self.states = sorted
     }
     
     public func updateSheet(shouldBlur: Bool, backgroundColor: UIColor) {
@@ -365,7 +370,7 @@ extension CoverSheetController {
                                toItem: nil,
                                attribute: .notAnAttribute,
                                multiplier: 1,
-                               constant: 50)
+                               constant: 15)
         
         handleHeight.priority = .defaultLow
         
@@ -389,7 +394,7 @@ extension CoverSheetController {
                                toItem: nil,
                                attribute: .notAnAttribute,
                                multiplier: 1,
-                               constant: 10),
+                               constant: 5),
             NSLayoutConstraint(item: handle,
                                attribute: .width,
                                relatedBy: .equal,
@@ -398,7 +403,7 @@ extension CoverSheetController {
                                multiplier: 1,
                                constant: 50),
             handle.centerXAnchor.constraint(equalTo: handlePadding.centerXAnchor),
-            handle.topAnchor.constraint(equalTo: handlePadding.topAnchor, constant: 25)
+            handle.topAnchor.constraint(equalTo: handlePadding.topAnchor, constant: 10)
         ]
         
         NSLayoutConstraint.activate(constraints)
