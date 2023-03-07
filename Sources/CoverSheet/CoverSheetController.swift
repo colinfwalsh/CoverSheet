@@ -134,11 +134,15 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
                 else { return }
                 
                 self.delegate?.coverSheet(currentState: $0)
-                
-                guard !self.isTransitioning && !self.initialLoad
+                guard !self.initialLoad
                 else {
                     self.initialLoad = false
-                    return }
+                    self.currentState = .normal
+                    return
+                }
+                
+                guard !self.isTransitioning
+                else { return }
                 
                 self.animateSheet()
         }
