@@ -158,7 +158,8 @@ extension CoverSheetController {
     }
     
     public func overrideStates(_ states: [SheetState]) {
-        self.states = states.sorted()
+        let sorted = states.sorted(by: <)
+        self.states = sorted
     }
     
     public func updateSheet(shouldBlur: Bool, backgroundColor: UIColor) {
