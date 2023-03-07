@@ -30,7 +30,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     public init(states: [SheetState] = [.minimized, .normal, .full],
          shouldUseEffect: Bool = false,
          sheetColor: UIColor = .white) {
-        self.states = states
+        self.states = states.sorted()
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
         super.init(nibName: nil, bundle: nil)
