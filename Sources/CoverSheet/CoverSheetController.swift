@@ -25,7 +25,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     private var cancellables: Set<AnyCancellable> = []
     
-    private var animationValues: AnimationValues = AnimationValues()
+    private var animationConfig: AnimationConfig = AnimationConfig()
     
     public weak var delegate: CoverSheetDelegate?
     
@@ -168,7 +168,7 @@ extension CoverSheetController {
                                         options: UIView.AnimationOptions = [.curveLinear],
                                         springDamping: CGFloat = 2.0,
                                         springVelocity: CGFloat = 7.0) {
-        self.animationValues = AnimationValues(timing: timing,
+        self.animationConfig = AnimationConfig(timing: timing,
                                                options: options,
                                                springDamping: springDamping,
                                                springVelocity: springVelocity)
@@ -285,15 +285,15 @@ extension CoverSheetController {
 extension CoverSheetController {
     private func animateSheet() {
         isTransitioning = true
-        UIView.animate(withDuration: animationValues.timing,
+        UIView.animate(withDuration: animationConfig.timing,
                        delay: 0,
-                       usingSpringWithDamping: animationValues.springDamping,
-                       initialSpringVelocity: animationValues.springVelocity,
-                       options: animationValues.options) { [currentState, sheetView, superFrame = view.frame] in
+                       usingSpringWithDamping: animationConfig.springDamping,
+                       initialSpringVelocity: animationConfig.springVelocity,
+                       options: animationConfig.options) { [currentState, sheetView, superFrame = view.frame] in
             let finalHeight = (superFrame.height) * currentState.rawValue
             let diffHeight = superFrame.height - finalHeight
             sheetView.frame = CGRect(x: 0, y: diffHeight, width: superFrame.width, height: superFrame.height)
-        } completion: { [weak self, timing = animationValues.timing] _ in
+        } completion: { [weak self, timing = animationConfig.timing] _ in
             guard let self = self
             else { return }
             
