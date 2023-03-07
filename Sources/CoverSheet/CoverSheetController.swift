@@ -370,7 +370,7 @@ extension CoverSheetController {
                                toItem: nil,
                                attribute: .notAnAttribute,
                                multiplier: 1,
-                               constant: 50)
+                               constant: 15)
         
         handleHeight.priority = .defaultLow
         
@@ -394,7 +394,7 @@ extension CoverSheetController {
                                toItem: nil,
                                attribute: .notAnAttribute,
                                multiplier: 1,
-                               constant: 10),
+                               constant: 5),
             NSLayoutConstraint(item: handle,
                                attribute: .width,
                                relatedBy: .equal,
