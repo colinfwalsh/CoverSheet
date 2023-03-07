@@ -13,7 +13,7 @@ import Combine
 open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     @Published
-    private var currentState: SheetState = .normal
+    private var currentState: SheetState = .custom(0.0)
     
     private var states: [SheetState] = []
     
