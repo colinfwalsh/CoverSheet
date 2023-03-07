@@ -25,6 +25,8 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     private var cancellables: Set<AnyCancellable> = []
     
+    private var animationValues: AnimationValues = AnimationValues()
+    
     public weak var delegate: CoverSheetDelegate?
     
     public init(states: [SheetState] = [.minimized, .normal, .full],
@@ -162,6 +164,16 @@ extension CoverSheetController {
         self.states = sorted
     }
     
+    public func overrideAnimationValues(timing: CGFloat = 0.1,
+                                        options: UIView.AnimationOptions = [.curveLinear],
+                                        springDamping: CGFloat = 2.0,
+                                        springVelocity: CGFloat = 7.0) {
+        self.animationValues = AnimationValues(timing: timing,
+                                               options: options,
+                                               springDamping: springDamping,
+                                               springVelocity: springVelocity)
+    }
+    
     public func updateSheet(shouldBlur: Bool, backgroundColor: UIColor) {
         self.blurEffectEnabled = shouldBlur
         
@@ -273,25 +285,25 @@ extension CoverSheetController {
 extension CoverSheetController {
     private func animateSheet() {
         isTransitioning = true
-        UIView.animate(withDuration: 0.15,
+        UIView.animate(withDuration: animationValues.timing,
                        delay: 0,
-                       usingSpringWithDamping: 2.0,
-                       initialSpringVelocity: 7.0,
-                       options: .curveLinear) { [currentState, sheetView, superFrame = view.frame] in
+                       usingSpringWithDamping: animationValues.springDamping,
+                       initialSpringVelocity: animationValues.springVelocity,
+                       options: animationValues.options) { [currentState, sheetView, superFrame = view.frame] in
             let finalHeight = (superFrame.height) * currentState.rawValue
             let diffHeight = superFrame.height - finalHeight
             sheetView.frame = CGRect(x: 0, y: diffHeight, width: superFrame.width, height: superFrame.height)
-        } completion: { [weak self] _ in
+        } completion: { [weak self, timing = animationValues.timing] _ in
             guard let self = self
             else { return }
             
             DispatchQueue.main.async {
                 self.isTransitioning = false
                 if self.currentState == .cover && self.sheetView.layer.cornerRadius > 0 {
-                    self.animateAllCorners(from: 16.0, to: 0.0, duration: 0.1)
+                    self.animateAllCorners(from: 16.0, to: 0.0, duration: timing)
                 } else if self.currentState != .cover {
                     if self.sheetView.layer.cornerRadius == 0 {
-                        self.animateAllCorners(from: 0.0, to: 16.0, duration: 0.1)
+                        self.animateAllCorners(from: 0.0, to: 16.0, duration: timing)
                     }
                 }
             }
