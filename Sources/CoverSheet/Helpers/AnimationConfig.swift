@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-struct AnimationConfig {
+public struct AnimationConfig {
     let timing: CGFloat
     let options: UIView.AnimationOptions
     let springDamping: CGFloat

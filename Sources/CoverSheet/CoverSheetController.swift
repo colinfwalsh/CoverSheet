@@ -137,9 +137,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
                 guard !self.initialLoad
                 else {
                     self.initialLoad = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.currentState = .normal
-                    }
+                    self.currentState = .normal
                     return
                 }
                 
@@ -172,6 +170,10 @@ extension CoverSheetController {
     public func overrideStates(_ states: [SheetState]) {
         let sorted = states.sorted(by: >)
         self.states = sorted
+    }
+    
+    public func overrideAnimationConfig(_ config: AnimationConfig) {
+        self.animationConfig = config
     }
     
     public func overrideAnimationValues(timing: CGFloat = 0.1,

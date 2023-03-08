@@ -48,12 +48,14 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
                                       sheetColor: sheetColor)
         vc.delegate = manager
         vc.configure(inner: inner(), sheet: sheet(vc.getAdjustedHeight()))
+        vc.overrideAnimationConfig(animationConfig)
         return vc
     }
     
     public func updateUIViewController(_ uiViewController: CoverSheetController, context: Context) {
         uiViewController.updateViews(inner: inner(), sheet: sheet(uiViewController.getAdjustedHeight()))
         uiViewController.updateSheet(shouldBlur: useBlurEffect, backgroundColor: sheetColor)
+        uiViewController.overrideAnimationConfig(animationConfig)
     }
 }
 
