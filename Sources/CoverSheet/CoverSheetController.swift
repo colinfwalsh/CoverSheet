@@ -34,7 +34,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     public init(states: [SheetState] = [.minimized, .normal, .full],
          shouldUseEffect: Bool = false,
          sheetColor: UIColor = .white) {
-        self.states = states.sorted(by: >)
+        self.states = states.sorted(by: { $0.rawValue < $1.rawValue })
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
         super.init(nibName: nil, bundle: nil)
@@ -168,7 +168,7 @@ extension CoverSheetController {
     }
     
     public func overrideStates(_ states: [SheetState]) {
-        let sorted = states.sorted(by: >)
+        let sorted = states.sorted(by: { $0.rawValue < $1.rawValue })
         self.states = sorted
     }
     
