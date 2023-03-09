@@ -129,7 +129,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
         
         $currentState
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
+            .sink { [weak self, states] in
                 guard let self = self
                 else { return }
                 
@@ -137,7 +137,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
                 guard !self.initialLoad
                 else {
                     self.initialLoad = false
-                    self.currentState = .normal
+                    self.currentState = states[Int(states.count / 2)]
                     return
                 }
                 
