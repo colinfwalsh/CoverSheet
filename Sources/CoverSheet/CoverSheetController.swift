@@ -13,7 +13,7 @@ import Combine
 open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     @Published
-    private var currentState: SheetState = .custom(0.0)
+    private var currentState: SheetState = .custom("", 0.0)
     
     private var states: [SheetState] = []
     
@@ -34,7 +34,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     public init(states: [SheetState] = [.minimized, .normal, .full],
          shouldUseEffect: Bool = false,
          sheetColor: UIColor = .white) {
-        self.states = states.sorted(by: >)
+        self.states = states.sorted(by: { $0.rawValue < $1.rawValue })
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
         super.init(nibName: nil, bundle: nil)
@@ -129,7 +129,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
         
         $currentState
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
+            .sink { [weak self, states] in
                 guard let self = self
                 else { return }
                 
@@ -137,7 +137,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
                 guard !self.initialLoad
                 else {
                     self.initialLoad = false
-                    self.currentState = .normal
+                    self.currentState = states[Int(states.count / 2)]
                     return
                 }
                 
@@ -168,7 +168,7 @@ extension CoverSheetController {
     }
     
     public func overrideStates(_ states: [SheetState]) {
-        let sorted = states.sorted(by: >)
+        let sorted = states.sorted(by: { $0.rawValue < $1.rawValue })
         self.states = sorted
     }
     
