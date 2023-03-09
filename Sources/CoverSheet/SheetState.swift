@@ -15,7 +15,7 @@ public enum SheetState: Equatable, Comparable {
     case full
     case normal
     case minimized
-    case custom(CGFloat)
+    case custom(_ id: String, _ value: CGFloat)
     
     var rawValue: CGFloat {
         switch self {
@@ -27,7 +27,7 @@ public enum SheetState: Equatable, Comparable {
             return 0.7
         case .minimized:
             return 0.35
-        case let .custom(value):
+        case let .custom(_, value):
             return value
         }
     }
