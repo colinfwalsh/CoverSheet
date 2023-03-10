@@ -44,6 +44,7 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
                             sheetColor: UIColor = .white) {
         self.init(states: states)
         self.manager = manager
+        self.delegate = manager
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
     }
