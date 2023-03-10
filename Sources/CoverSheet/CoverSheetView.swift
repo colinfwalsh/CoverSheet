@@ -42,7 +42,7 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
     }
     
     public func makeUIViewController(context: Context) -> CoverSheetController {
-        let updatedStates = states.isEmpty ? [.minimized, .normal, .full] : states
+        let updatedStates = states.isEmpty ? [.collapsed, .normal, .full] : states
         let vc = CoverSheetController(states: updatedStates,
                                       shouldUseEffect: useBlurEffect,
                                       sheetColor: sheetColor)

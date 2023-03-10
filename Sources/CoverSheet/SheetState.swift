@@ -14,7 +14,8 @@ public enum SheetState: Equatable, Comparable {
     case cover
     case full
     case normal
-    case minimized
+    case collapsed
+    case hidden
     case custom(_ id: String, _ value: CGFloat)
     
     var rawValue: CGFloat {
@@ -25,8 +26,10 @@ public enum SheetState: Equatable, Comparable {
             return 0.9
         case .normal:
             return 0.7
-        case .minimized:
+        case .collapsed:
             return 0.35
+        case .hidden:
+            return 0.0
         case let .custom(_, value):
             return value
         }

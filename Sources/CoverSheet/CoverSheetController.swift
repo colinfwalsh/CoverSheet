@@ -13,13 +13,11 @@ import Combine
 open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     @Published
-    private var currentState: SheetState = .custom("", 0.0)
+    private var currentState: SheetState = .hidden
     
     private var states: [SheetState] = []
     
     private var isTransitioning: Bool = false
-    
-    private var initialLoad: Bool = true
     
     private var blurEffectEnabled: Bool = false
     
@@ -31,7 +29,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     public weak var delegate: CoverSheetDelegate?
     
-    public init(states: [SheetState] = [.minimized, .normal, .full],
+    public init(states: [SheetState] = [.collapsed, .normal, .full],
          shouldUseEffect: Bool = false,
          sheetColor: UIColor = .white) {
         self.states = states.sorted(by: { $0.rawValue < $1.rawValue })
@@ -42,7 +40,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     required public init?(coder: NSCoder) {
         super.init(coder: coder)
-        self.states = [.minimized, .normal, .full]
+        self.states = [.collapsed, .normal, .full]
     }
     
     private var insets: UIEdgeInsets {
@@ -129,17 +127,11 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
         
         $currentState
             .receive(on: DispatchQueue.main)
-            .sink { [weak self, states] in
+            .sink { [weak self] in
                 guard let self = self
                 else { return }
                 
                 self.delegate?.coverSheet(currentState: $0)
-                guard !self.initialLoad
-                else {
-                    self.initialLoad = false
-                    self.currentState = states[Int(states.count / 2)]
-                    return
-                }
                 
                 guard !self.isTransitioning
                 else { return }
@@ -165,6 +157,17 @@ extension CoverSheetController {
     public func updateViews(inner: some View, sheet: some View) {
         innerContentViewController.update(inner)
         sheetContentViewController.update(sheet)
+    }
+    
+    /** Update the current state.  If the state is not present in the state array, it'll add the value and sort the new state array. */
+    public func updateCurrentState(_ newState: SheetState) {
+        if states.contains(newState) {
+            self.currentState = newState
+        } else {
+            states.append(newState)
+            states = states.sorted(by: { $0.rawValue < $1.rawValue })
+            self.currentState = newState
+        }
     }
     
     public func overrideStates(_ states: [SheetState]) {
@@ -236,12 +239,6 @@ extension CoverSheetController {
             let frameHeight = view.frame.height
             let maxHeight = abs(frameHeight - (frameHeight * (states.last?.rawValue ?? 0.0)))
             let minHeight = abs(frameHeight - (frameHeight * (states.first?.rawValue ?? 0.0)))
-            
-            guard offset >= maxHeight && offset <= minHeight
-            else {
-                let sheetPoint = CGPoint(x: sheetView.frame.minX, y: view.frame.height - sheetView.frame.minY)
-                findNearestState(sheetPoint)
-                return }
             
             sheetView.frame = CGRect(x: 0, y: offset, width: view.frame.width, height: view.frame.height)
             recognizer.setTranslation(.zero, in: self.view)
