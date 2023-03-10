@@ -15,6 +15,8 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
     @ObservedObject
     private var manager: ViewManager = ViewManager()
     
+    private var states: [SheetState] = [.collapsed, .normal, .full]
+    
     private var isTransitioning: Bool = false
     
     private var blurEffectEnabled: Bool = false
@@ -30,10 +32,10 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
     public init(states: [SheetState] = [.collapsed, .normal, .full],
          shouldUseEffect: Bool = false,
          sheetColor: UIColor = .white) {
+        self.states = states
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
         super.init(nibName: nil, bundle: nil)
-        self.manager.states = states.sorted(by: { $0.rawValue < $1.rawValue })
     }
     
     public convenience init(manager: ViewManager, shouldUseEffect: Bool = false, sheetColor: UIColor = .white) {
@@ -45,7 +47,7 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
     
     required public init?(coder: NSCoder) {
         super.init(coder: coder)
-        self.manager.states = [.collapsed, .normal, .full]
+        self.states = [.collapsed, .normal, .full]
     }
     
     private var insets: UIEdgeInsets {
@@ -162,8 +164,8 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
             let offset = sheetView.frame.minY + point.y
             
             let frameHeight = view.frame.height
-            let maxHeight = abs(frameHeight - (frameHeight * (manager.states.last?.rawValue ?? 0.0)))
-            let minHeight = abs(frameHeight - (frameHeight * (manager.states.first?.rawValue ?? 0.0)))
+            let maxHeight = abs(frameHeight - (frameHeight * (states.last?.rawValue ?? 0.0)))
+            let minHeight = abs(frameHeight - (frameHeight * (states.first?.rawValue ?? 0.0)))
             
             sheetView.frame = CGRect(x: 0, y: offset, width: view.frame.width, height: view.frame.height)
             recognizer.setTranslation(.zero, in: self.view)
@@ -185,22 +187,22 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
     private func cycleStates(_ velocity: CGPoint) {
         let direction = velocity.y
         
-        var position = manager.states.firstIndex(of: manager.currentState) ?? 0
+        var position = states.firstIndex(of: manager.currentState) ?? 0
         
         if direction < 0 {
-            position = position == manager.states.count-1 ? position : (position+1)
+            position = position == states.count-1 ? position : (position+1)
         } else {
             position = position == 0 ? position : (position-1)
         }
         
-        manager.currentState = manager.states[position]
+        manager.currentState = states[position]
     }
     
     private func findNearestState(_ point: CGPoint) {
         var min: CGFloat = CGFloat(Int.max)
         var finalState: SheetState = manager.currentState
         
-        manager.states.forEach {
+        states.forEach {
             let height = view.frame.height * $0.rawValue
             
             let diff = abs(height - point.y)
@@ -234,18 +236,18 @@ extension CoverSheetController {
     
     /** Update the current state.  If the state is not present in the state array, it'll add the value and sort the new state array. */
     public func updateCurrentState(_ newState: SheetState) {
-        if manager.states.contains(newState) {
+        if states.contains(newState) {
             self.manager.currentState = newState
         } else {
-            manager.states.append(newState)
-            manager.states = manager.states.sorted(by: { $0.rawValue < $1.rawValue })
+            states.append(newState)
+            states = states.sorted(by: { $0.rawValue < $1.rawValue })
             self.manager.currentState = newState
         }
     }
     
     public func overrideStates(_ states: [SheetState]) {
         let sorted = states.sorted(by: { $0.rawValue < $1.rawValue })
-        self.manager.states = sorted
+        self.states = sorted
     }
     
     public func overrideAnimationConfig(_ config: AnimationConfig) {

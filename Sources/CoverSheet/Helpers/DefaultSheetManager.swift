@@ -15,8 +15,6 @@ public class DefaultSheetManager: Manager {
     
     public var currentStatePublisher: Published<SheetState>.Publisher { $currentState }
     
-    public var states: [SheetState] = [.collapsed, .normal, .full]
-    
     public var currentStateConstant: CGFloat {
         return currentState.rawValue
     }
