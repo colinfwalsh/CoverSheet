@@ -10,16 +10,14 @@ import UIKit
 import SwiftUI
 import Combine
 
-open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
+open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestureRecognizerDelegate {
     
-    @Published
-    private var currentState: SheetState = .custom("", 0.0)
+    @ObservedObject
+    private var manager: ViewManager = ViewManager()
     
-    private var states: [SheetState] = []
+    private var states: [SheetState] = [.collapsed, .normal, .full]
     
     private var isTransitioning: Bool = false
-    
-    private var initialLoad: Bool = true
     
     private var blurEffectEnabled: Bool = false
     
@@ -31,18 +29,28 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     public weak var delegate: CoverSheetDelegate?
     
-    public init(states: [SheetState] = [.minimized, .normal, .full],
+    public init(states: [SheetState] = [.collapsed, .normal, .full],
          shouldUseEffect: Bool = false,
          sheetColor: UIColor = .white) {
-        self.states = states.sorted(by: { $0.rawValue < $1.rawValue })
+        self.states = states.sorted(by: { $0.rawValue < $1.rawValue} )
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
         super.init(nibName: nil, bundle: nil)
     }
     
+    public convenience init(manager: ViewManager,
+                            states: [SheetState],
+                            shouldUseEffect: Bool = false,
+                            sheetColor: UIColor = .white) {
+        self.init(states: states)
+        self.manager = manager
+        self.blurEffectEnabled = shouldUseEffect
+        self.sheetColor = sheetColor
+    }
+    
     required public init?(coder: NSCoder) {
         super.init(coder: coder)
-        self.states = [.minimized, .normal, .full]
+        self.states = [.collapsed, .normal, .full]
     }
     
     private var insets: UIEdgeInsets {
@@ -60,7 +68,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     private var offset: CGFloat {
         let maxHeight = self.view.frame.height - 100
-        return maxHeight - (maxHeight * currentState.rawValue)
+        return maxHeight - (maxHeight * manager.currentState.rawValue)
     }
     
     private lazy var handlePadding: UIView = {
@@ -127,19 +135,14 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
         setupInnerView()
         setupBottomSheet()
         
-        $currentState
+        manager
+            .currentStatePublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self, states] in
+            .sink { [weak self] in
                 guard let self = self
                 else { return }
                 
                 self.delegate?.coverSheet(currentState: $0)
-                guard !self.initialLoad
-                else {
-                    self.initialLoad = false
-                    self.currentState = states[Int(states.count / 2)]
-                    return
-                }
                 
                 guard !self.isTransitioning
                 else { return }
@@ -147,6 +150,78 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
                 self.animateSheet()
         }
         .store(in: &cancellables)
+    }
+    
+    private func setupGestureRecognizer(for view: UIView) {
+        let gesture = UIPanGestureRecognizer(target: self,
+                                             action: #selector(panGesture))
+        view.addGestureRecognizer(gesture)
+        gesture.delegate = self
+    }
+    
+    @objc private func panGesture(_ recognizer: UIPanGestureRecognizer) {
+        let point = recognizer.translation(in: self.view)
+        let velocity = recognizer.velocity(in: self.view)
+        
+        if recognizer.state != .cancelled || recognizer.state != .ended {
+            let offset = sheetView.frame.minY + point.y
+            
+            let frameHeight = view.frame.height
+            let maxHeight = abs(frameHeight - (frameHeight * (states.last?.rawValue ?? 0.0)))
+            
+            guard offset >= maxHeight
+            else {
+                let sheetPoint = CGPoint(x: sheetView.frame.minX, y: view.frame.height - sheetView.frame.minY)
+                findNearestState(sheetPoint)
+                return }
+            
+            sheetView.frame = CGRect(x: 0, y: offset, width: view.frame.width, height: view.frame.height)
+            recognizer.setTranslation(.zero, in: self.view)
+        }
+        
+        guard recognizer.state == .ended
+        else { return }
+        
+        let absVelocity = abs(velocity.y)
+        guard absVelocity <= 500
+        else {
+            cycleStates(velocity)
+            return }
+        
+        let sheetPoint = CGPoint(x: sheetView.frame.minX, y: view.frame.height - sheetView.frame.minY)
+        findNearestState(sheetPoint)
+    }
+    
+    private func cycleStates(_ velocity: CGPoint) {
+        let direction = velocity.y
+        
+        var position = states.firstIndex(of: manager.currentState) ?? 0
+        
+        if direction < 0 {
+            position = position == states.count-1 ? position : (position+1)
+        } else {
+            position = position == 0 ? position : (position-1)
+        }
+        
+        manager.currentState = states[position]
+    }
+    
+    private func findNearestState(_ point: CGPoint) {
+        var min: CGFloat = CGFloat(Int.max)
+        var finalState: SheetState = manager.currentState
+        
+        states.forEach {
+            let height = view.frame.height * $0.rawValue
+            
+            let diff = abs(height - point.y)
+            
+            if diff < min {
+                min = diff
+                finalState = $0
+            }
+        }
+        
+        manager.currentState = finalState
     }
 }
 
@@ -165,6 +240,17 @@ extension CoverSheetController {
     public func updateViews(inner: some View, sheet: some View) {
         innerContentViewController.update(inner)
         sheetContentViewController.update(sheet)
+    }
+    
+    /** Update the current state.  If the state is not present in the state array, it'll add the value and sort the new state array. */
+    public func updateCurrentState(_ newState: SheetState) {
+        if states.contains(newState) {
+            self.manager.currentState = newState
+        } else {
+            states.append(newState)
+            states = states.sorted(by: { $0.rawValue < $1.rawValue })
+            self.manager.currentState = newState
+        }
     }
     
     public func overrideStates(_ states: [SheetState]) {
@@ -199,7 +285,7 @@ extension CoverSheetController {
     }
     
     public func getAdjustedHeight() -> CGFloat {
-        return currentState.rawValue * view.frame.height
+        return manager.currentState.rawValue * view.frame.height
     }
 }
 
@@ -217,82 +303,6 @@ extension CoverSheetController {
     }
 }
 
-// MARK: Gesture Recognizer Logic
-extension CoverSheetController {
-    private func setupGestureRecognizer(for view: UIView) {
-        let gesture = UIPanGestureRecognizer(target: self,
-                                             action: #selector(panGesture))
-        view.addGestureRecognizer(gesture)
-        gesture.delegate = self
-    }
-    
-    @objc private func panGesture(_ recognizer: UIPanGestureRecognizer) {
-        let point = recognizer.translation(in: self.view)
-        let velocity = recognizer.velocity(in: self.view)
-        
-        if recognizer.state != .cancelled || recognizer.state != .ended {
-            let offset = sheetView.frame.minY + point.y
-            
-            let frameHeight = view.frame.height
-            let maxHeight = abs(frameHeight - (frameHeight * (states.last?.rawValue ?? 0.0)))
-            let minHeight = abs(frameHeight - (frameHeight * (states.first?.rawValue ?? 0.0)))
-            
-            guard offset >= maxHeight && offset <= minHeight
-            else {
-                let sheetPoint = CGPoint(x: sheetView.frame.minX, y: view.frame.height - sheetView.frame.minY)
-                findNearestState(sheetPoint)
-                return }
-            
-            sheetView.frame = CGRect(x: 0, y: offset, width: view.frame.width, height: view.frame.height)
-            recognizer.setTranslation(.zero, in: self.view)
-        }
-        
-        guard recognizer.state == .ended
-        else { return }
-        
-        let absVelocity = abs(velocity.y)
-        guard absVelocity <= 500
-        else {
-            cycleStates(velocity)
-            return }
-        
-        let sheetPoint = CGPoint(x: sheetView.frame.minX, y: view.frame.height - sheetView.frame.minY)
-        findNearestState(sheetPoint)
-    }
-    
-    private func cycleStates(_ velocity: CGPoint) {
-        let direction = velocity.y
-        
-        var position = states.firstIndex(of: currentState) ?? 0
-        
-        if direction < 0 {
-            position = position == states.count-1 ? position : (position+1)
-        } else {
-            position = position == 0 ? position : (position-1)
-        }
-        
-        currentState = states[position]
-    }
-    
-    private func findNearestState(_ point: CGPoint) {
-        var min: CGFloat = CGFloat(Int.max)
-        var finalState: SheetState = currentState
-        
-        states.forEach {
-            let height = view.frame.height * $0.rawValue
-            
-            let diff = abs(height - point.y)
-            
-            if diff < min {
-                min = diff
-                finalState = $0
-            }
-        }
-        
-        currentState = finalState
-    }
-}
-
 // MARK: Animations
 extension CoverSheetController {
     private func animateSheet() {
@@ -301,7 +311,7 @@ extension CoverSheetController {
                        delay: 0,
                        usingSpringWithDamping: animationConfig.springDamping,
                        initialSpringVelocity: animationConfig.springVelocity,
-                       options: animationConfig.options) { [currentState, sheetView, superFrame = view.frame] in
+                       options: animationConfig.options) { [currentState = manager.currentState, sheetView, superFrame = view.frame] in
             let finalHeight = (superFrame.height) * currentState.rawValue
             let diffHeight = superFrame.height - finalHeight
             sheetView.frame = CGRect(x: 0, y: diffHeight, width: superFrame.width, height: superFrame.height)
@@ -311,9 +321,9 @@ extension CoverSheetController {
             
             DispatchQueue.main.async {
                 self.isTransitioning = false
-                if self.currentState == .cover && self.sheetView.layer.cornerRadius > 0 {
+                if self.manager.currentState == .cover && self.sheetView.layer.cornerRadius > 0 {
                     self.animateAllCorners(from: 16.0, to: 0.0, duration: timing)
-                } else if self.currentState != .cover {
+                } else if self.manager.currentState != .cover {
                     if self.sheetView.layer.cornerRadius == 0 {
                         self.animateAllCorners(from: 0.0, to: 16.0, duration: timing)
                     }
@@ -472,7 +482,7 @@ extension CoverSheetController {
     
     private func setupBottomSheet() {
         self.view.addSubview(sheetView)
-        let frameHeight = view.frame.height * currentState.rawValue
+        let frameHeight = view.frame.height * manager.currentState.rawValue
         sheetView.frame = CGRect(x: 0,
                                  y: view.frame.height - frameHeight,
                                  width: view.frame.width,
