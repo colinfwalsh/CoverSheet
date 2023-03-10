@@ -56,6 +56,7 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
         uiViewController.updateViews(inner: inner(), sheet: sheet(uiViewController.getAdjustedHeight()))
         uiViewController.updateSheet(shouldBlur: useBlurEffect, backgroundColor: sheetColor)
         uiViewController.overrideAnimationConfig(animationConfig)
+        uiViewController.updateCurrentState(manager.sheetState)
     }
 }
 
