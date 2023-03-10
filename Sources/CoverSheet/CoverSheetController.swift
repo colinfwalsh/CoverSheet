@@ -30,10 +30,10 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
     public init(states: [SheetState] = [.collapsed, .normal, .full],
          shouldUseEffect: Bool = false,
          sheetColor: UIColor = .white) {
-        self.manager.states = states.sorted(by: { $0.rawValue < $1.rawValue })
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
         super.init(nibName: nil, bundle: nil)
+        self.manager.states = states.sorted(by: { $0.rawValue < $1.rawValue })
     }
     
     public convenience init(manager: ViewManager, shouldUseEffect: Bool = false, sheetColor: UIColor = .white) {
@@ -146,6 +146,73 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
         }
         .store(in: &cancellables)
     }
+    
+    private func setupGestureRecognizer(for view: UIView) {
+        let gesture = UIPanGestureRecognizer(target: self,
+                                             action: #selector(panGesture))
+        view.addGestureRecognizer(gesture)
+        gesture.delegate = self
+    }
+    
+    @objc private func panGesture(_ recognizer: UIPanGestureRecognizer) {
+        let point = recognizer.translation(in: self.view)
+        let velocity = recognizer.velocity(in: self.view)
+        
+        if recognizer.state != .cancelled || recognizer.state != .ended {
+            let offset = sheetView.frame.minY + point.y
+            
+            let frameHeight = view.frame.height
+            let maxHeight = abs(frameHeight - (frameHeight * (manager.states.last?.rawValue ?? 0.0)))
+            let minHeight = abs(frameHeight - (frameHeight * (manager.states.first?.rawValue ?? 0.0)))
+            
+            sheetView.frame = CGRect(x: 0, y: offset, width: view.frame.width, height: view.frame.height)
+            recognizer.setTranslation(.zero, in: self.view)
+        }
+        
+        guard recognizer.state == .ended
+        else { return }
+        
+        let absVelocity = abs(velocity.y)
+        guard absVelocity <= 500
+        else {
+            cycleStates(velocity)
+            return }
+        
+        let sheetPoint = CGPoint(x: sheetView.frame.minX, y: view.frame.height - sheetView.frame.minY)
+        findNearestState(sheetPoint)
+    }
+    
+    private func cycleStates(_ velocity: CGPoint) {
+        let direction = velocity.y
+        
+        var position = manager.states.firstIndex(of: manager.currentState) ?? 0
+        
+        if direction < 0 {
+            position = position == manager.states.count-1 ? position : (position+1)
+        } else {
+            position = position == 0 ? position : (position-1)
+        }
+        
+        manager.currentState = manager.states[position]
+    }
+    
+    private func findNearestState(_ point: CGPoint) {
+        var min: CGFloat = CGFloat(Int.max)
+        var finalState: SheetState = manager.currentState
+        
+        manager.states.forEach {
+            let height = view.frame.height * $0.rawValue
+            
+            let diff = abs(height - point.y)
+            
+            if diff < min {
+                min = diff
+                finalState = $0
+            }
+        }
+        
+        manager.currentState = finalState
+    }
 }
 
 // MARK: Public methods
@@ -223,76 +290,6 @@ extension CoverSheetController {
         if !view.subviews.contains(blurEffect) {
             setupBlurEffect(in: view)
         }
-    }
-}
-
-// MARK: Gesture Recognizer Logic
-extension CoverSheetController {
-    private func setupGestureRecognizer(for view: UIView) {
-        let gesture = UIPanGestureRecognizer(target: self,
-                                             action: #selector(panGesture))
-        view.addGestureRecognizer(gesture)
-        gesture.delegate = self
-    }
-    
-    @objc private func panGesture(_ recognizer: UIPanGestureRecognizer) {
-        let point = recognizer.translation(in: self.view)
-        let velocity = recognizer.velocity(in: self.view)
-        
-        if recognizer.state != .cancelled || recognizer.state != .ended {
-            let offset = sheetView.frame.minY + point.y
-            
-            let frameHeight = view.frame.height
-            let maxHeight = abs(frameHeight - (frameHeight * (manager.states.last?.rawValue ?? 0.0)))
-            let minHeight = abs(frameHeight - (frameHeight * (manager.states.first?.rawValue ?? 0.0)))
-            
-            sheetView.frame = CGRect(x: 0, y: offset, width: view.frame.width, height: view.frame.height)
-            recognizer.setTranslation(.zero, in: self.view)
-        }
-        
-        guard recognizer.state == .ended
-        else { return }
-        
-        let absVelocity = abs(velocity.y)
-        guard absVelocity <= 500
-        else {
-            cycleStates(velocity)
-            return }
-        
-        let sheetPoint = CGPoint(x: sheetView.frame.minX, y: view.frame.height - sheetView.frame.minY)
-        findNearestState(sheetPoint)
-    }
-    
-    private func cycleStates(_ velocity: CGPoint) {
-        let direction = velocity.y
-        
-        var position = manager.states.firstIndex(of: manager.currentState) ?? 0
-        
-        if direction < 0 {
-            position = position == manager.states.count-1 ? position : (position+1)
-        } else {
-            position = position == 0 ? position : (position-1)
-        }
-        
-        manager.currentState = manager.states[position]
-    }
-    
-    private func findNearestState(_ point: CGPoint) {
-        var min: CGFloat = CGFloat(Int.max)
-        var finalState: SheetState = manager.currentState
-        
-        manager.states.forEach {
-            let height = view.frame.height * $0.rawValue
-            
-            let diff = abs(height - point.y)
-            
-            if diff < min {
-                min = diff
-                finalState = $0
-            }
-        }
-        
-        manager.currentState = finalState
     }
 }
 
