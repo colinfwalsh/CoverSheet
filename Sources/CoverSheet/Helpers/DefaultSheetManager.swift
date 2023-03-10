@@ -19,9 +19,5 @@ public class DefaultSheetManager: Manager {
         return currentState.rawValue
     }
     
-    public func coverSheet(currentState: SheetState) {
-        self.currentState = currentState
-    }
-    
     public required init() {}
 }

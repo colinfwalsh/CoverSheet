@@ -47,7 +47,6 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
                                       states: updatedStates,
                                       shouldUseEffect: useBlurEffect,
                                       sheetColor: sheetColor)
-        vc.delegate = manager
         vc.configure(inner: inner(), sheet: sheet(vc.getAdjustedHeight()))
         vc.overrideAnimationConfig(animationConfig)
         return vc
