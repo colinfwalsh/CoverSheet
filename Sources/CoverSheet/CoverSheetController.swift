@@ -19,8 +19,6 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     private var isTransitioning: Bool = false
     
-    private var initialLoad: Bool = true
-    
     private var blurEffectEnabled: Bool = false
     
     private var sheetColor: UIColor = .clear
@@ -31,7 +29,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     public weak var delegate: CoverSheetDelegate?
     
-    public init(states: [SheetState] = [.minimized, .normal, .full],
+    public init(states: [SheetState] = [.collapsed, .normal, .full],
          shouldUseEffect: Bool = false,
          sheetColor: UIColor = .white) {
         self.states = states.sorted(by: { $0.rawValue < $1.rawValue })
@@ -42,7 +40,7 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
     
     required public init?(coder: NSCoder) {
         super.init(coder: coder)
-        self.states = [.minimized, .normal, .full]
+        self.states = [.collapsed, .normal, .full]
     }
     
     private var insets: UIEdgeInsets {
@@ -129,17 +127,11 @@ open class CoverSheetController: UIViewController, UIGestureRecognizerDelegate {
         
         $currentState
             .receive(on: DispatchQueue.main)
-            .sink { [weak self, states] in
+            .sink { [weak self] in
                 guard let self = self
                 else { return }
                 
                 self.delegate?.coverSheet(currentState: $0)
-                guard !self.initialLoad
-                else {
-                    self.initialLoad = false
-                    self.currentState = states[Int(states.count / 2)]
-                    return
-                }
                 
                 guard !self.isTransitioning
                 else { return }
@@ -165,6 +157,10 @@ extension CoverSheetController {
     public func updateViews(inner: some View, sheet: some View) {
         innerContentViewController.update(inner)
         sheetContentViewController.update(sheet)
+    }
+    
+    public func updateCurrentState(_ newState: SheetState) {
+        self.currentState = newState
     }
     
     public func overrideStates(_ states: [SheetState]) {
