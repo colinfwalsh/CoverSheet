@@ -11,15 +11,19 @@ import Combine
 
 public class DefaultSheetManager: Manager {
     @Published
-    public var sheetState: SheetState = .normal
+    public var currentState: SheetState = .hidden
     
-    public var stateConstant: CGFloat {
-        return sheetState.rawValue
+    public var currentStatePublisher: Published<SheetState>.Publisher { $currentState }
+    
+    public var states: [SheetState] = [.collapsed, .normal, .full]
+    
+    public var currentStateConstant: CGFloat {
+        return currentState.rawValue
     }
     
     public func coverSheet(currentState: SheetState) {
-        self.sheetState = currentState
+        self.currentState = currentState
     }
     
-    public init() {}
+    public required init() {}
 }

@@ -20,8 +20,6 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
     
     private var animationConfig: AnimationConfig
     
-    private var states: [SheetState] = []
-    
     @ViewBuilder
     public var inner: () -> Inner
     
@@ -32,8 +30,8 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
                 states: [SheetState] = [],
                 _ inner: @escaping () -> Inner,
                 sheet: @escaping (CGFloat) -> Sheet) {
+        manager.states = states
         _manager = ObservedObject(wrappedValue: manager)
-        self.states = states
         self.useBlurEffect = false
         self.sheetColor = .white
         self.animationConfig = AnimationConfig()
@@ -41,9 +39,9 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
         self.sheet = sheet
     }
     
-    public func makeUIViewController(context: Context) -> CoverSheetController {
-        let updatedStates = states.isEmpty ? [.collapsed, .normal, .full] : states
-        let vc = CoverSheetController(states: updatedStates,
+    public func makeUIViewController(context: Context) -> CoverSheetController<ViewManager> {
+        let updatedStates = manager.states.isEmpty ? [.collapsed, .normal, .full] : manager.states
+        let vc = CoverSheetController(manager: manager,
                                       shouldUseEffect: useBlurEffect,
                                       sheetColor: sheetColor)
         vc.delegate = manager
@@ -52,11 +50,10 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
         return vc
     }
     
-    public func updateUIViewController(_ uiViewController: CoverSheetController, context: Context) {
+    public func updateUIViewController(_ uiViewController: CoverSheetController<ViewManager>, context: Context) {
         uiViewController.updateViews(inner: inner(), sheet: sheet(uiViewController.getAdjustedHeight()))
         uiViewController.updateSheet(shouldBlur: useBlurEffect, backgroundColor: sheetColor)
         uiViewController.overrideAnimationConfig(animationConfig)
-        uiViewController.updateCurrentState(manager.sheetState)
     }
 }
 

@@ -6,9 +6,13 @@
 //
 
 import Foundation
+import Combine
 import SwiftUI
 
 public protocol Manager: ObservableObject, CoverSheetDelegate {
-    var sheetState: SheetState { get set }
-    var stateConstant: CGFloat { get }
+    var states: [SheetState] { get set }
+    var currentState: SheetState { get set }
+    var currentStatePublisher: Published<SheetState>.Publisher { get }
+    var currentStateConstant: CGFloat { get }
+    init()
 }
