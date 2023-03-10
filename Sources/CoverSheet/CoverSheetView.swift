@@ -14,6 +14,8 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
     @ObservedObject
     private var manager: ViewManager
     
+    private var states: [SheetState]
+    
     private var useBlurEffect: Bool
     
     private var sheetColor: UIColor
@@ -28,10 +30,10 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
     
     public init(_ manager: ViewManager,
                 states: [SheetState] = [],
-                _ inner: @escaping () -> Inner,
+                inner: @escaping () -> Inner,
                 sheet: @escaping (CGFloat) -> Sheet) {
-        manager.states = states
         _manager = ObservedObject(wrappedValue: manager)
+        self.states = states
         self.useBlurEffect = false
         self.sheetColor = .white
         self.animationConfig = AnimationConfig()
@@ -40,8 +42,9 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
     }
     
     public func makeUIViewController(context: Context) -> CoverSheetController<ViewManager> {
-        let updatedStates = manager.states.isEmpty ? [.collapsed, .normal, .full] : manager.states
+        let updatedStates = states.isEmpty ? [.collapsed, .normal, .full] : states
         let vc = CoverSheetController(manager: manager,
+                                      states: updatedStates,
                                       shouldUseEffect: useBlurEffect,
                                       sheetColor: sheetColor)
         vc.delegate = manager

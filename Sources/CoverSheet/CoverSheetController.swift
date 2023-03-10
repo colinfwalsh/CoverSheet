@@ -32,14 +32,17 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
     public init(states: [SheetState] = [.collapsed, .normal, .full],
          shouldUseEffect: Bool = false,
          sheetColor: UIColor = .white) {
-        self.states = states
+        self.states = states.sorted(by: { $0.rawValue < $1.rawValue} )
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
         super.init(nibName: nil, bundle: nil)
     }
     
-    public convenience init(manager: ViewManager, shouldUseEffect: Bool = false, sheetColor: UIColor = .white) {
-        self.init()
+    public convenience init(manager: ViewManager,
+                            states: [SheetState],
+                            shouldUseEffect: Bool = false,
+                            sheetColor: UIColor = .white) {
+        self.init(states: states)
         self.manager = manager
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
