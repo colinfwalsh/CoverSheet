@@ -159,8 +159,15 @@ extension CoverSheetController {
         sheetContentViewController.update(sheet)
     }
     
+    /** Update the current state.  If the state is not present in the state array, it'll add the value and sort the new state array. */
     public func updateCurrentState(_ newState: SheetState) {
-        self.currentState = newState
+        if states.contains(newState) {
+            self.currentState = newState
+        } else {
+            states.append(newState)
+            states = states.sorted(by: { $0.rawValue < $1.rawValue })
+            self.currentState = newState
+        }
     }
     
     public func overrideStates(_ states: [SheetState]) {
