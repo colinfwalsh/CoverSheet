@@ -170,7 +170,10 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
             let maxHeight = abs(frameHeight - (frameHeight * (states.last?.rawValue ?? 0.0)))
             
             guard offset >= maxHeight
-            else { return }
+            else {
+                let sheetPoint = CGPoint(x: sheetView.frame.minX, y: view.frame.height - sheetView.frame.minY)
+                findNearestState(sheetPoint)
+                return }
             
             sheetView.frame = CGRect(x: 0, y: offset, width: view.frame.width, height: view.frame.height)
             recognizer.setTranslation(.zero, in: self.view)
