@@ -169,7 +169,7 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
             let frameHeight = view.frame.height
             let maxHeight = abs(frameHeight - (frameHeight * (states.last?.rawValue ?? 0.0)))
             
-            guard offset <= maxHeight
+            guard offset >= maxHeight
             else { return }
             
             sheetView.frame = CGRect(x: 0, y: offset, width: view.frame.width, height: view.frame.height)
