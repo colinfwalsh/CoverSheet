@@ -37,7 +37,7 @@ public enum SheetState: Equatable {
         }
     }
     
-    func getIdentifier<T>() -> T where T:Identifiable {
+    public func getIdentifier<T>() -> T where T:Identifiable {
         switch self {
         case .cover:
             return "cover" as! T
