@@ -8,7 +8,9 @@
 
 import Foundation
 
-public enum SheetState: Identifiable, Equatable {
+public protocol SheetId: Identifiable, RawRepresentable {}
+
+public enum SheetState: Equatable {
     typealias RawValue = CGFloat
     
     case cover
@@ -16,7 +18,7 @@ public enum SheetState: Identifiable, Equatable {
     case normal
     case collapsed
     case hidden
-    case custom(_ id: String, _ value: CGFloat)
+    case custom(_ id: any SheetId, _ value: CGFloat)
     
     public var rawValue: CGFloat {
         switch self {
@@ -35,20 +37,7 @@ public enum SheetState: Identifiable, Equatable {
         }
     }
     
-    public var id: String {
-        switch self {
-        case .cover:
-            return "cover"
-        case .full:
-            return "full"
-        case .normal:
-            return "normal"
-        case .collapsed:
-            return "collapsed"
-        case .hidden:
-            return "hidden"
-        case let .custom(id, _):
-            return "custom_" + id
-        }
+    public static func == (lhs: SheetState, rhs: SheetState) -> Bool {
+        lhs.rawValue == rhs.rawValue
     }
 }
