@@ -37,7 +37,31 @@ public enum SheetState: Equatable {
         }
     }
     
+    func getIdentifier<T>() -> T where T:Identifiable {
+        switch self {
+        case .cover:
+            return "cover" as! T
+        case .full:
+            return "full" as! T
+        case .normal:
+            return "normal" as! T
+        case .collapsed:
+            return "collapsed" as! T
+        case .hidden:
+            return "hidden" as! T
+        case let .custom(id, _):
+            return id as! T
+        }
+    }
+    
     public static func == (lhs: SheetState, rhs: SheetState) -> Bool {
         lhs.rawValue == rhs.rawValue
+    }
+}
+
+extension String: Identifiable {
+    public typealias ID = Int
+    public var id: Int {
+        return hash
     }
 }
