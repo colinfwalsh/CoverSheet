@@ -29,12 +29,12 @@ public struct CoverSheetView<Inner: View,
     public var inner: () -> Inner
     
     @ViewBuilder
-    public var sheet: (CGFloat) -> Sheet
+    public var sheet: () -> Sheet
     
     public init(_ manager: ViewManager,
                 states: [EnumValue] = [],
                 inner: @escaping () -> Inner,
-                sheet: @escaping (CGFloat) -> Sheet) {
+                sheet: @escaping () -> Sheet) {
         _manager = ObservedObject(wrappedValue: manager)
         self.states = states
         self.useBlurEffect = false
@@ -49,13 +49,13 @@ public struct CoverSheetView<Inner: View,
                                       states: states,
                                       shouldUseEffect: useBlurEffect,
                                       sheetColor: sheetColor)
-        vc.configure(inner: inner(), sheet: sheet(vc.getAdjustedHeight()))
+        vc.configure(inner: inner(), sheet: sheet())
         vc.overrideAnimationConfig(animationConfig)
         return vc
     }
     
     public func updateUIViewController(_ uiViewController: CoverSheetController<ViewManager, EnumValue>, context: Context) {
-        uiViewController.updateViews(inner: inner(), sheet: sheet(uiViewController.getAdjustedHeight()))
+        uiViewController.updateViews(inner: inner(), sheet: sheet())
         uiViewController.updateSheet(shouldBlur: useBlurEffect, backgroundColor: sheetColor)
         uiViewController.overrideAnimationConfig(animationConfig)
     }

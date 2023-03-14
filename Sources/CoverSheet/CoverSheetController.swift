@@ -312,10 +312,6 @@ extension CoverSheetController {
         
         sheetView.backgroundColor = backgroundColor
     }
-    
-    public func getAdjustedHeight() -> CGFloat {
-        return manager.currentState.rawValue * view.frame.height
-    }
 }
 
 // MARK: Public helper methods

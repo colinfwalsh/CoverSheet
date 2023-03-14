@@ -15,5 +15,6 @@ public protocol Manager: ObservableObject {
     var currentState: EnumValue { get set }
     var currentStatePublisher: Published<EnumValue>.Publisher { get }
     var currentStateConstant: CGFloat { get }
+    
     init()
 }
