@@ -12,7 +12,7 @@ import Combine
 
 open class CoverSheetController<ViewManager: Manager,
                                 EnumValue: RawRepresentable & Equatable>: UIViewController,
-                                                               UIGestureRecognizerDelegate where EnumValue.RawValue == CGFloat {
+                                                                          UIGestureRecognizerDelegate where EnumValue.RawValue == CGFloat {
     
     @ObservedObject
     private var manager: ViewManager = ViewManager()
@@ -32,8 +32,8 @@ open class CoverSheetController<ViewManager: Manager,
     public weak var delegate: CoverSheetDelegate?
     
     public init(states: [EnumValue] = [],
-         shouldUseEffect: Bool = false,
-         sheetColor: UIColor = .white) {
+                shouldUseEffect: Bool = false,
+                sheetColor: UIColor = .white) {
         self.states = states.sorted(by: { $0.rawValue < $1.rawValue} )
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
@@ -137,6 +137,12 @@ open class CoverSheetController<ViewManager: Manager,
         setupInnerView()
         setupBottomSheet()
         
+        setupObservers()
+    }
+    
+    private func setupObservers() {
+        cancellables.removeAll()
+        
         manager
             .currentStatePublisher
             .receive(on: DispatchQueue.main)
@@ -151,8 +157,8 @@ open class CoverSheetController<ViewManager: Manager,
                 else { return }
                 
                 self.animateSheet()
-        }
-        .store(in: &cancellables)
+            }
+            .store(in: &cancellables)
     }
     
     private func setupGestureRecognizer(for view: UIView) {
@@ -273,6 +279,7 @@ extension CoverSheetController {
     
     public func overrideManager(_ manager: ViewManager) {
         self.manager = manager
+        setupObservers()
     }
     
     public func overrideStates(_ states: [EnumValue]) {
@@ -302,7 +309,7 @@ extension CoverSheetController {
         } else {
             removeBlur()
         }
-     
+        
         sheetView.backgroundColor = backgroundColor
     }
     
@@ -421,12 +428,12 @@ extension CoverSheetController {
         handlePadding.translatesAutoresizingMaskIntoConstraints = false
         
         let handleHeight = NSLayoutConstraint(item: handlePadding,
-                               attribute: .height,
-                               relatedBy: .equal,
-                               toItem: nil,
-                               attribute: .notAnAttribute,
-                               multiplier: 1,
-                               constant: 15)
+                                              attribute: .height,
+                                              relatedBy: .equal,
+                                              toItem: nil,
+                                              attribute: .notAnAttribute,
+                                              multiplier: 1,
+                                              constant: 15)
         
         handleHeight.priority = .defaultLow
         
