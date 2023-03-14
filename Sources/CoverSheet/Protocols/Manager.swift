@@ -10,8 +10,11 @@ import Combine
 import SwiftUI
 
 public protocol Manager: ObservableObject {
-    var currentState: SheetState { get set }
-    var currentStatePublisher: Published<SheetState>.Publisher { get }
+    associatedtype EnumValue: RawRepresentable where EnumValue.RawValue == CGFloat
+    
+    var currentState: EnumValue { get set }
+    var currentStatePublisher: Published<EnumValue>.Publisher { get }
     var currentStateConstant: CGFloat { get }
+    
     init()
 }

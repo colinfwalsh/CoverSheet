@@ -10,12 +10,14 @@ import UIKit
 import SwiftUI
 import Combine
 
-open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestureRecognizerDelegate {
+open class CoverSheetController<ViewManager: Manager,
+                                EnumValue: RawRepresentable & Equatable>: UIViewController,
+                                                                          UIGestureRecognizerDelegate where EnumValue.RawValue == CGFloat {
     
     @ObservedObject
     private var manager: ViewManager = ViewManager()
     
-    private var states: [SheetState] = [.collapsed, .normal, .full]
+    private var states: [EnumValue] = []
     
     private var isTransitioning: Bool = false
     
@@ -29,9 +31,9 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
     
     public weak var delegate: CoverSheetDelegate?
     
-    public init(states: [SheetState] = [.collapsed, .normal, .full],
-         shouldUseEffect: Bool = false,
-         sheetColor: UIColor = .white) {
+    public init(states: [EnumValue] = [],
+                shouldUseEffect: Bool = false,
+                sheetColor: UIColor = .white) {
         self.states = states.sorted(by: { $0.rawValue < $1.rawValue} )
         self.blurEffectEnabled = shouldUseEffect
         self.sheetColor = sheetColor
@@ -39,7 +41,7 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
     }
     
     public convenience init(manager: ViewManager,
-                            states: [SheetState],
+                            states: [EnumValue],
                             shouldUseEffect: Bool = false,
                             sheetColor: UIColor = .white) {
         self.init(states: states)
@@ -50,7 +52,7 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
     
     required public init?(coder: NSCoder) {
         super.init(coder: coder)
-        self.states = [.collapsed, .normal, .full]
+        self.states = []
     }
     
     private var insets: UIEdgeInsets {
@@ -135,6 +137,12 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
         setupInnerView()
         setupBottomSheet()
         
+        setupObservers()
+    }
+    
+    private func setupObservers() {
+        cancellables.removeAll()
+        
         manager
             .currentStatePublisher
             .receive(on: DispatchQueue.main)
@@ -142,14 +150,15 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
                 guard let self = self
                 else { return }
                 
-                self.delegate?.coverSheet(currentState: $0)
+                let newHeight = self.view.frame.height * $0.rawValue
+                self.delegate?.coverSheet(sheetHeight: newHeight)
                 
                 guard !self.isTransitioning
                 else { return }
                 
                 self.animateSheet()
-        }
-        .store(in: &cancellables)
+            }
+            .store(in: &cancellables)
     }
     
     private func setupGestureRecognizer(for view: UIView) {
@@ -193,9 +202,12 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
     }
     
     private func cycleStates(_ velocity: CGPoint) {
+        guard let current = manager.currentState as? EnumValue
+        else { return }
+        
         let direction = velocity.y
         
-        var position = states.firstIndex(of: manager.currentState) ?? 0
+        var position = states.firstIndex(of: current) ?? 0
         
         if direction < 0 {
             position = position == states.count-1 ? position : (position+1)
@@ -203,12 +215,17 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
             position = position == 0 ? position : (position-1)
         }
         
-        manager.currentState = states[position]
+        guard let newState = states[position] as? ViewManager.EnumValue
+        else { return }
+        
+        manager.currentState = newState
     }
     
     private func findNearestState(_ point: CGPoint) {
         var min: CGFloat = CGFloat(Int.max)
-        var finalState: SheetState = manager.currentState
+        
+        guard var finalState: EnumValue = manager.currentState as? EnumValue
+        else { return }
         
         states.forEach {
             let height = view.frame.height * $0.rawValue
@@ -221,12 +238,16 @@ open class CoverSheetController<ViewManager: Manager>: UIViewController, UIGestu
             }
         }
         
-        manager.currentState = finalState
+        guard let final = finalState as? ViewManager.EnumValue
+        else { return }
+        
+        manager.currentState = final
     }
 }
 
 // MARK: Public methods
 extension CoverSheetController {
+    
     public func configure(inner: UIViewController, sheet: UIViewController) {
         innerContentViewController.configure(inner)
         sheetContentViewController.configure(sheet)
@@ -243,17 +264,25 @@ extension CoverSheetController {
     }
     
     /** Update the current state.  If the state is not present in the state array, it'll add the value and sort the new state array. */
-    public func updateCurrentState(_ newState: SheetState) {
+    public func updateCurrentState(_ newState: EnumValue) {
+        guard let updateValue = newState as? ViewManager.EnumValue
+        else { return }
+        
         if states.contains(newState) {
-            self.manager.currentState = newState
+            self.manager.currentState = updateValue
         } else {
             states.append(newState)
             states = states.sorted(by: { $0.rawValue < $1.rawValue })
-            self.manager.currentState = newState
+            self.manager.currentState = updateValue
         }
     }
     
-    public func overrideStates(_ states: [SheetState]) {
+    public func overrideManager(_ manager: ViewManager) {
+        self.manager = manager
+        setupObservers()
+    }
+    
+    public func overrideStates(_ states: [EnumValue]) {
         let sorted = states.sorted(by: { $0.rawValue < $1.rawValue })
         self.states = sorted
     }
@@ -280,12 +309,8 @@ extension CoverSheetController {
         } else {
             removeBlur()
         }
-     
+        
         sheetView.backgroundColor = backgroundColor
-    }
-    
-    public func getAdjustedHeight() -> CGFloat {
-        return manager.currentState.rawValue * view.frame.height
     }
 }
 
@@ -321,9 +346,9 @@ extension CoverSheetController {
             
             DispatchQueue.main.async {
                 self.isTransitioning = false
-                if self.manager.currentState == .cover && self.sheetView.layer.cornerRadius > 0 {
+                if self.manager.currentState.rawValue == 1.0 && self.sheetView.layer.cornerRadius > 0 {
                     self.animateAllCorners(from: 16.0, to: 0.0, duration: timing)
-                } else if self.manager.currentState != .cover {
+                } else if self.manager.currentState.rawValue != 1.0 {
                     if self.sheetView.layer.cornerRadius == 0 {
                         self.animateAllCorners(from: 0.0, to: 16.0, duration: timing)
                     }
@@ -399,12 +424,12 @@ extension CoverSheetController {
         handlePadding.translatesAutoresizingMaskIntoConstraints = false
         
         let handleHeight = NSLayoutConstraint(item: handlePadding,
-                               attribute: .height,
-                               relatedBy: .equal,
-                               toItem: nil,
-                               attribute: .notAnAttribute,
-                               multiplier: 1,
-                               constant: 15)
+                                              attribute: .height,
+                                              relatedBy: .equal,
+                                              toItem: nil,
+                                              attribute: .notAnAttribute,
+                                              multiplier: 1,
+                                              constant: 15)
         
         handleHeight.priority = .defaultLow
         
