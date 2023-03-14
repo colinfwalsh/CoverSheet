@@ -271,6 +271,10 @@ extension CoverSheetController {
         }
     }
     
+    public func overrideManager(_ manager: ViewManager) {
+        self.manager = manager
+    }
+    
     public func overrideStates(_ states: [EnumValue]) {
         let sorted = states.sorted(by: { $0.rawValue < $1.rawValue })
         self.states = sorted
