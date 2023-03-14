@@ -10,11 +10,14 @@ import UIKit
 import SwiftUI
 
 // MARK: SwiftUI ViewRepresentable
-public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UIViewControllerRepresentable {
+public struct CoverSheetView<Inner: View,
+                             Sheet: View,
+                             ViewManager: Manager,
+                             EnumValue: RawRepresentable & Equatable>: UIViewControllerRepresentable where EnumValue.RawValue == CGFloat {
     @ObservedObject
     private var manager: ViewManager
     
-    private var states: [SheetState]
+    private var states: [EnumValue]
     
     private var useBlurEffect: Bool
     
@@ -29,7 +32,7 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
     public var sheet: (CGFloat) -> Sheet
     
     public init(_ manager: ViewManager,
-                states: [SheetState] = [],
+                states: [EnumValue] = [],
                 inner: @escaping () -> Inner,
                 sheet: @escaping (CGFloat) -> Sheet) {
         _manager = ObservedObject(wrappedValue: manager)
@@ -41,10 +44,9 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
         self.sheet = sheet
     }
     
-    public func makeUIViewController(context: Context) -> CoverSheetController<ViewManager> {
-        let updatedStates = states.isEmpty ? [.collapsed, .normal, .full] : states
+    public func makeUIViewController(context: Context) -> CoverSheetController<ViewManager, EnumValue> {
         let vc = CoverSheetController(manager: manager,
-                                      states: updatedStates,
+                                      states: states,
                                       shouldUseEffect: useBlurEffect,
                                       sheetColor: sheetColor)
         vc.configure(inner: inner(), sheet: sheet(vc.getAdjustedHeight()))
@@ -52,7 +54,7 @@ public struct CoverSheetView<Inner: View, Sheet: View, ViewManager: Manager>: UI
         return vc
     }
     
-    public func updateUIViewController(_ uiViewController: CoverSheetController<ViewManager>, context: Context) {
+    public func updateUIViewController(_ uiViewController: CoverSheetController<ViewManager, EnumValue>, context: Context) {
         uiViewController.updateViews(inner: inner(), sheet: sheet(uiViewController.getAdjustedHeight()))
         uiViewController.updateSheet(shouldBlur: useBlurEffect, backgroundColor: sheetColor)
         uiViewController.overrideAnimationConfig(animationConfig)

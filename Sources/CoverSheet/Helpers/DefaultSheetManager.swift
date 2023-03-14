@@ -10,10 +10,12 @@ import Foundation
 import Combine
 
 public class DefaultSheetManager: Manager {
-    @Published
-    public var currentState: SheetState = .hidden
+    public typealias EnumValue = DefaultSheetState
     
-    public var currentStatePublisher: Published<SheetState>.Publisher { $currentState }
+    @Published
+    public var currentState: EnumValue = .hidden
+    
+    public var currentStatePublisher: Published<EnumValue>.Publisher { $currentState }
     
     public var currentStateConstant: CGFloat {
         return currentState.rawValue
