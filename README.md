@@ -4,7 +4,7 @@
 
 Cover sheet is a dynamic, customizable, sheet that supports both UIKit and SwiftUI.  You'll also be able to mix and match SwiftUI and UIKit views as needed to create any view you can imagine.  In addition, CoverSheet also supports dynamic fullscreen animations similar to what you'd see in the `Messages` app on iPhone.
 
-[example-gif]
+![example-gif]
 ___
 
 ## Requirements
@@ -175,4 +175,4 @@ To configure `CoverSheet` you have a few options depending on which UI framework
 [cover-example-swiftUI]: https://github.com/colinfwalsh/CoverSheet-SwiftUI-Example
 [cover-example-uikit]: https://github.com/colinfwalsh/CoverSheet-UIKit-Example
 
-[example-gif]: hhttps://tenor.com/b2c9m.gif
+[example-gif]: https://media.tenor.com/mcJlIPykqu0AAAAC/opensource-coversheet.gif
