@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol CoverSheetDelegate: AnyObject {
-    func coverSheet(currentState: SheetState)
+    func coverSheet(sheetHeight: CGFloat)
 }
