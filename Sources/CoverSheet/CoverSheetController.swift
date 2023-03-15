@@ -353,7 +353,6 @@ extension CoverSheetController {
             else { return }
             
             DispatchQueue.main.async {
-                self.updateSheetConstraints()
                 self.isTransitioning = false
                 if self.manager.currentState.rawValue == 1.0 && self.sheetView.layer.cornerRadius > 0 {
                     self.animateAllCorners(from: 16.0, to: 0.0, duration: timing)
