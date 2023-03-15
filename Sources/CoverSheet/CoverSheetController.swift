@@ -178,7 +178,6 @@ open class CoverSheetController<ViewManager: Manager,
             let offset = sheetView.frame.minY + point.y
             
             let sheetContentSize = view.frame.height - offset - 20
-//            print(view.frame.height, offset, , point.y, sheetContentViewController.view.frame.height)
             
             self.heightConstraint?.constant = sheetContentSize
             
@@ -485,8 +484,6 @@ extension CoverSheetController {
     private func setupSheetControllerConst(for view: UIView) {
         guard let sheetView = sheetContentViewController.view
         else { return }
-        
-        sheetView.backgroundColor = .green
         
         sheetView.translatesAutoresizingMaskIntoConstraints = false
         
