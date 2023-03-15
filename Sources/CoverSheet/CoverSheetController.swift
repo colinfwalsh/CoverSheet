@@ -474,7 +474,13 @@ extension CoverSheetController {
     private func updateSheetConstraints() {
         let sheetHeight = view.frame.height * manager.currentState.rawValue
         
-        self.heightConstraint?.constant = sheetHeight - 15
+        UIView.animate(withDuration: animationConfig.timing,
+                       delay: 0,
+                       usingSpringWithDamping: animationConfig.springDamping,
+                       initialSpringVelocity: animationConfig.springVelocity,
+                       options: animationConfig.options) {
+            self.heightConstraint?.constant = sheetHeight - 20
+        }
     }
     
     private func setupSheetControllerConst(for view: UIView) {
@@ -485,7 +491,8 @@ extension CoverSheetController {
         
         sheetView.translatesAutoresizingMaskIntoConstraints = false
         
-        self.heightConstraint = sheetView.heightAnchor.constraint(equalToConstant: sheetView.frame.height - 15)
+        self.heightConstraint = sheetView.heightAnchor.constraint(equalToConstant: sheetView.frame.height - 20)
+        heightConstraint?.priority = .defaultHigh
         
         let constraints = [
             sheetView.topAnchor.constraint(equalTo: self.handlePadding.bottomAnchor, constant: 0),
