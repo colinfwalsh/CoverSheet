@@ -177,7 +177,11 @@ open class CoverSheetController<ViewManager: Manager,
         if recognizer.state != .cancelled || recognizer.state != .ended {
             let offset = sheetView.frame.minY + point.y
             
-            print(view.frame.height, offset, view.frame.height - offset, point.y, sheetContentViewController.view.frame.height)
+            let sheetContentSize = view.frame.height - offset - 20
+//            print(view.frame.height, offset, , point.y, sheetContentViewController.view.frame.height)
+            
+            self.heightConstraint?.constant = sheetContentSize
+            
             let frameHeight = view.frame.height
             let maxHeight = abs(frameHeight - (frameHeight * (states.last?.rawValue ?? 0.0)))
             
