@@ -152,7 +152,7 @@ open class CoverSheetController<ViewManager: Manager,
                 guard let self = self
                 else { return }
                 
-                let newHeight = self.view.frame.height * $0.rawValue
+                let newHeight = (self.view.frame.height * $0.rawValue) - 20
                 self.delegate?.coverSheet(sheetHeight: newHeight)
                 
                 guard !self.isTransitioning
@@ -178,6 +178,8 @@ open class CoverSheetController<ViewManager: Manager,
             let offset = sheetView.frame.minY + point.y
             
             let sheetContentSize = view.frame.height - offset - 20
+            
+            delegate?.coverSheet(sheetHeight: sheetContentSize)
             
             self.heightConstraint?.constant = sheetContentSize
             
