@@ -31,6 +31,8 @@ open class CoverSheetController<ViewManager: Manager,
     
     public weak var delegate: CoverSheetDelegate?
     
+    private var heightConstraint: NSLayoutConstraint?
+    
     public init(states: [EnumValue] = [],
                 shouldUseEffect: Bool = false,
                 sheetColor: UIColor = .white) {
@@ -340,6 +342,7 @@ extension CoverSheetController {
             let finalHeight = (superFrame.height) * currentState.rawValue
             let diffHeight = superFrame.height - finalHeight
             sheetView.frame = CGRect(x: 0, y: diffHeight, width: superFrame.width, height: superFrame.height)
+            self.updateSheetConstraints()
         } completion: { [weak self, timing = animationConfig.timing] _ in
             guard let self = self
             else { return }
@@ -468,17 +471,29 @@ extension CoverSheetController {
         NSLayoutConstraint.activate(constraints)
     }
     
+    private func updateSheetConstraints() {
+        let sheetHeight = view.frame.height * manager.currentState.rawValue
+        
+        self.heightConstraint?.constant = sheetHeight - 15
+        
+        UIView.animate(withDuration: 0.3, delay: 0) {
+            self.sheetView.layoutIfNeeded()
+        }
+    }
+    
     private func setupSheetControllerConst(for view: UIView) {
         guard let sheetView = sheetContentViewController.view
         else { return }
         
         sheetView.translatesAutoresizingMaskIntoConstraints = false
         
+        self.heightConstraint = sheetView.heightAnchor.constraint(equalToConstant: sheetView.frame.height - 15)
+        
         let constraints = [
             sheetView.topAnchor.constraint(equalTo: self.handlePadding.bottomAnchor, constant: 0),
             sheetView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
             sheetView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
-            sheetView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
+            heightConstraint!
         ]
         
         NSLayoutConstraint.activate(constraints)
