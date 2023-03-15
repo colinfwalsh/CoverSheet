@@ -347,7 +347,6 @@ extension CoverSheetController {
             let finalHeight = (superFrame.height) * currentState.rawValue
             let diffHeight = superFrame.height - finalHeight
             sheetView.frame = CGRect(x: 0, y: diffHeight, width: superFrame.width, height: superFrame.height)
-            self.updateSheetConstraints()
         } completion: { [weak self, timing = animationConfig.timing] _ in
             guard let self = self
             else { return }
@@ -361,6 +360,7 @@ extension CoverSheetController {
                         self.animateAllCorners(from: 0.0, to: 16.0, duration: timing)
                     }
                 }
+                self.updateSheetConstraints()
             }
         }
     }
@@ -479,6 +479,14 @@ extension CoverSheetController {
     private func updateSheetConstraints() {
         let sheetHeight = view.frame.height * manager.currentState.rawValue
         self.heightConstraint?.constant = sheetHeight - 20
+        
+        UIView.animate(withDuration: animationConfig.timing,
+                       delay: 0,
+                       usingSpringWithDamping: animationConfig.springDamping,
+                       initialSpringVelocity: animationConfig.springVelocity,
+                       options: animationConfig.options) {
+            self.sheetView.layoutIfNeeded()
+        }
     }
     
     private func setupSheetControllerConst(for view: UIView) {
