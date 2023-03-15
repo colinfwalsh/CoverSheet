@@ -433,7 +433,7 @@ extension CoverSheetController {
                                               toItem: nil,
                                               attribute: .notAnAttribute,
                                               multiplier: 1,
-                                              constant: 15)
+                                              constant: 20)
         
         handleHeight.priority = .defaultLow
         
