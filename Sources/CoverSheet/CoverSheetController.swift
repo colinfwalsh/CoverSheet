@@ -475,15 +475,13 @@ extension CoverSheetController {
         let sheetHeight = view.frame.height * manager.currentState.rawValue
         
         self.heightConstraint?.constant = sheetHeight - 15
-        
-        UIView.animate(withDuration: 0.3, delay: 0) {
-            self.sheetView.layoutIfNeeded()
-        }
     }
     
     private func setupSheetControllerConst(for view: UIView) {
         guard let sheetView = sheetContentViewController.view
         else { return }
+        
+        sheetView.backgroundColor = .green
         
         sheetView.translatesAutoresizingMaskIntoConstraints = false
         
