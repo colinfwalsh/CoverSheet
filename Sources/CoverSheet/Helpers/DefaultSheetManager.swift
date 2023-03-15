@@ -21,6 +21,9 @@ public class DefaultSheetManager: Manager, CoverSheetDelegate {
     public var currentStatePublisher: Published<EnumValue>.Publisher { $currentState }
     
     public func coverSheet(sheetHeight: CGFloat) {
+        guard sheetHeight >= 0
+        else { return }
+        
         self.sheetHeight = sheetHeight
     }
     
