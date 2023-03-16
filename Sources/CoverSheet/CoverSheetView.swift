@@ -59,6 +59,7 @@ public struct CoverSheetView<Inner: View,
         uiViewController.updateViews(inner: inner(), sheet: sheet())
         uiViewController.updateSheet(shouldBlur: useBlurEffect, backgroundColor: sheetColor)
         uiViewController.overrideAnimationConfig(animationConfig)
+        uiViewController.overrideStates(states)
     }
 }
 
@@ -85,6 +86,12 @@ public extension CoverSheetView {
     func sheetBackgroundColor(_ color: Color) -> Self {
         var view = self
         view.sheetColor = color.uiColor()
+        return view
+    }
+    
+    func overrideStates(_ states: [EnumValue]) -> Self {
+        var view = self
+        view.states = states
         return view
     }
 }
