@@ -36,7 +36,7 @@ public struct CoverSheetView<Inner: View,
                 inner: @escaping () -> Inner,
                 sheet: @escaping () -> Sheet) {
         _manager = ObservedObject(wrappedValue: manager)
-        self.states = states
+        self.states = states.sorted(by: { $0.rawValue < $1.rawValue} )
         self.useBlurEffect = false
         self.sheetColor = .white
         self.animationConfig = AnimationConfig()
@@ -59,6 +59,7 @@ public struct CoverSheetView<Inner: View,
         uiViewController.updateViews(inner: inner(), sheet: sheet())
         uiViewController.updateSheet(shouldBlur: useBlurEffect, backgroundColor: sheetColor)
         uiViewController.overrideAnimationConfig(animationConfig)
+        uiViewController.overrideStates(states)
     }
 }
 
