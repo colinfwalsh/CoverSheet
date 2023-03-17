@@ -36,7 +36,7 @@ public struct CoverSheetView<Inner: View,
                 inner: @escaping () -> Inner,
                 sheet: @escaping () -> Sheet) {
         _manager = ObservedObject(wrappedValue: manager)
-        self.states = states
+        self.states = states.sorted(by: { $0.rawValue < $1.rawValue} )
         self.useBlurEffect = false
         self.sheetColor = .white
         self.animationConfig = AnimationConfig()
@@ -86,12 +86,6 @@ public extension CoverSheetView {
     func sheetBackgroundColor(_ color: Color) -> Self {
         var view = self
         view.sheetColor = color.uiColor()
-        return view
-    }
-    
-    func overrideStates(_ states: [EnumValue]) -> Self {
-        var view = self
-        view.states = states
         return view
     }
 }
