@@ -40,7 +40,9 @@ class ContainerViewController: UIViewController, Containable {
     }
     
     private func setupViewController(_ viewController: UIViewController) {
-        viewController.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: view.frame.height)
+        viewController.view.frame = CGRect(x: 0, y: 0, 
+                                           width: view.frame.width,
+                                           height: view.frame.height)
         self.addChild(viewController)
         
         viewController.view.backgroundColor = .clear

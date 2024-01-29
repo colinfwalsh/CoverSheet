@@ -50,7 +50,7 @@ public struct CoverSheetView<Inner: View,
                                       shouldUseEffect: useBlurEffect,
                                       sheetColor: sheetColor)
         vc.delegate = manager
-        vc.configure(inner: inner(), sheet: sheet())
+        vc.configure(inner: inner().frame(width: vc.view.frame.width), sheet: sheet().frame(width: vc.view.frame.width))
         vc.overrideAnimationConfig(animationConfig)
         return vc
     }
